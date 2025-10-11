@@ -8,36 +8,24 @@ export default function Signup() {
   const [color, setColor] = useState("rgba(255, 255, 255, 0.60)");
   const [secondColor, setSecondColor] = useState("#121212");
 
-  const handleAccClick = () => {
-    setColor((prev) =>
-      prev === "rgba(255, 255, 255, 0.60)"
-        ? "#121212"
-        : "rgba(255, 255, 255, 0.60)"
-    );
-    setSecondColor((prev) =>
-      prev === "#121212" ? "rgba(255, 255, 255, 0.60)" : "#121212"
-    );
-    console.log("changed");
-  };
+ 
   return (
     <div className="w-full bg-[#121212] ">
       <Header />
         <div className="flex absolute bg-[#121212] min-h-screen w-full   flex-col justify-center items-center">
-          <Tabs defaultValue="buyer" className=" mt-[9%] lg:w-[500px] ">
+          <Tabs defaultValue="buyer" className="w-[300px] mt-[100px] lg:w-[500px] ">
             <TabsList
               style={{ border: "2px solid rgba(255, 255, 255, 0.6)" }}
               className="bg-transparent border-2  "
             >
               <TabsTrigger
                 style={{ color: color }}
-                onClick={handleAccClick}
                 value="seller"
               >
                 Seller
               </TabsTrigger>
               <TabsTrigger
                 style={{ color: secondColor }}
-                onClick={handleAccClick}
                 value="buyer"
               >
                 Explorer
