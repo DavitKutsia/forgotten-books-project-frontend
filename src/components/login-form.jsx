@@ -47,7 +47,7 @@ export function LoginForm({ className, ...props }) {
       if (!res.ok) {
         setError(data.message || "Login failed");
       } else {
-        navigate("/"); // redirect after login
+        navigate("/"); 
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
