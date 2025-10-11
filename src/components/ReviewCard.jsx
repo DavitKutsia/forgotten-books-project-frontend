@@ -13,7 +13,7 @@ export default function ReviewCard({ name, role, text, avatar }) {
         <img
           src={avatar}
           alt={name}
-          className="w-14 h-14 rounded-full object-cover border-2 border-blue-600"
+          className="w-14 h-14 rounded-full object-cover border-2 border-[#4169E1]"
         />
         <div>
           <h3 className="text-lg font-semibold">{name}</h3>

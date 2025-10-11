@@ -40,7 +40,9 @@ export default function Header() {
           </span>
         </section>
 
-        <button className="hidden md:block text-xl w-[150px] h-[50px] bg-blue-800 rounded-2xl text-white hover:scale-105 transition hover:bg-blue-600 hover:shadow-lg">
+        <button 
+        onClick={() => navigate("/SignUp")}
+        className="hidden md:block text-xl w-[150px] h-[50px] bg-blue-800 rounded-2xl text-white hover:scale-105 transition hover:bg-blue-600 hover:shadow-lg">
           Sign In/Up
         </button>
 

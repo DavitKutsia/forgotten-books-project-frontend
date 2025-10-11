@@ -36,7 +36,7 @@ export default function Homepage() {
           Discover and Share Forgotten Stories
         </h1>
         <div className="flex flex-wrap gap-6 justify-center">
-          <button className="px-8 py-4 bg-blue-700 text-white rounded-2xl hover:bg-blue-600 hover:scale-105 transition-all shadow-md">
+          <button className="px-8 py-4 bg-[#4169E1] text-white rounded-2xl hover:bg-[#4169E1] hover:scale-105 transition-all shadow-md">
             Start Writing
           </button>
           <button className="px-8 py-4 bg-gray-700 text-white rounded-2xl hover:bg-gray-600 hover:scale-105 transition-all shadow-md">
@@ -60,9 +60,9 @@ export default function Homepage() {
         <h3 className="text-2xl font-semibold">Join the Story</h3>
         <button
           onClick={() => {
-            navigate("/Signup");
+            navigate("/SignUp");
           }}
-          className="px-8 py-3 bg-blue-700 text-white rounded-xl hover:bg-blue-600 hover:scale-105 transition-all shadow-md"
+          className="px-8 py-3 bg-[#4169E1] text-white rounded-xl hover:bg-[#4169E1] hover:scale-105 transition-all shadow-md"
         >
           Get Started Free
         </button>
