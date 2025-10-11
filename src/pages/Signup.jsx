@@ -22,9 +22,8 @@ export default function Signup() {
   return (
     <div className="w-full bg-[#121212] ">
       <Header />
-      <div className="overflow-hidden">
-        <div className="flex mt-30 backdrop-blur-md flex-col justify-center items-center">
-          <Tabs defaultValue="buyer" className="w-[250px] lg:w-[400px] ">
+        <div className="flex absolute bg-[#121212] min-h-screen w-full   flex-col justify-center items-center">
+          <Tabs defaultValue="buyer" className=" mt-[9%] lg:w-[500px] ">
             <TabsList
               style={{ border: "2px solid rgba(255, 255, 255, 0.6)" }}
               className="bg-transparent border-2  "
@@ -69,7 +68,6 @@ export default function Signup() {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
     </div>
   );
 }
