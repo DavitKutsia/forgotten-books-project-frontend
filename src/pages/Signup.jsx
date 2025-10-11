@@ -24,7 +24,7 @@ export default function Signup() {
       <Header />
       <div className="overflow-hidden">
         <div className="flex mt-30 backdrop-blur-md flex-col justify-center items-center">
-          <Tabs defaultValue="buyer" className=" w-[400px]  ">
+          <Tabs defaultValue="buyer" className="w-[250px] lg:w-[400px] ">
             <TabsList
               style={{ border: "2px solid rgba(255, 255, 255, 0.6)" }}
               className="bg-transparent border-2  "

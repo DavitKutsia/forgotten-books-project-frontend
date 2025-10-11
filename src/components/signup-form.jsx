@@ -73,9 +73,9 @@ export function SignupForm({ role, ...props }) {
       {!signupSuccess && loading && <div className="mb-4 text-blue-500">Loading...</div>}
       {errors && <div className="mb-4 text-red-500">{errors.submit}</div>}
       {!signupSuccess && (
-        <div>
+        <div className="w-full flex justify-center items-center">
           <Card
-            className=" text-xl bg-[#121212]  w-[400px] shadow-lg"
+            className=" text-xl bg-[#121212] w-[250px] sm:w-[300px] md:w-[400px] shadow-lg"
             {...props}
             style={{
               color: "rgba(255, 255, 255, 0.60)",
