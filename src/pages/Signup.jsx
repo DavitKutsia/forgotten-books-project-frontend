@@ -52,7 +52,7 @@ export default function Signup() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <SignupForm role="Seller" />
+                <SignupForm role="seller" />
               </motion.div>
             </TabsContent>
             <TabsContent value="buyer">
@@ -64,7 +64,7 @@ export default function Signup() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <SignupForm role="Explorer" />
+                <SignupForm role="buyer" />
               </motion.div>
             </TabsContent>
           </Tabs>

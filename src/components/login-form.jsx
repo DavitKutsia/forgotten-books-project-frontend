@@ -47,7 +47,8 @@ export function LoginForm({ className, ...props }) {
       if (!res.ok) {
         setError(data.message || "Login failed");
       } else {
-        navigate("/"); 
+        localStorage.setItem("token", data.token);
+        navigate("/");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -117,7 +118,10 @@ export function LoginForm({ className, ...props }) {
                   <Button
                     type="submit"
                     disabled={loading}
-                    style={{ color: "rgba(255,255,255,0.60)", cursor: "pointer" }}
+                    style={{
+                      color: "rgba(255,255,255,0.60)",
+                      cursor: "pointer",
+                    }}
                   >
                     {loading ? "Logging in..." : "Login"}
                   </Button>
@@ -139,9 +143,7 @@ export function LoginForm({ className, ...props }) {
                     className="text-center mt-2"
                   >
                     Forgot your password?{" "}
-                    <span className="underline cursor-pointer">
-                      Reset here
-                    </span>
+                    <span className="underline cursor-pointer">Reset here</span>
                   </FieldDescription>
                 </Field>
               </FieldGroup>

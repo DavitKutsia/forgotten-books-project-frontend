@@ -56,22 +56,28 @@ export function SignupForm({ role, ...props }) {
           body: JSON.stringify(formData),
         }
       );
-      setLoading(false);
+
       const data1 = await res.json();
       console.log(formData);
       setData(data1);
-      setSignUpSuccess(true);
+      if (!res.ok) {
+        setErrors(data1.message || "Signup failed");
+        setLoading(false)
+      } else {
+        setSignUpSuccess(true);
+      }
     } catch (error) {
       console.error(error.message);
       setSignUpSuccess(false);
       setLoading(false);
-      setErrors({ submit: error.message });
     }
   };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#121212]">
-      {!signupSuccess && loading && <div className="mb-4 text-blue-500">Loading...</div>}
-      {errors && <div className="mb-4 text-red-500">{errors.submit}</div>}
+      {!signupSuccess && loading && (
+        <div className="mb-4 text-blue-500">Loading...</div>
+      )}
+      {errors && <div className="mb-4 text-red-500">{errors.message}</div>}
       {!signupSuccess && (
         <div className="w-full flex justify-center items-center">
           <Card
@@ -90,10 +96,10 @@ export function SignupForm({ role, ...props }) {
                   : "Find awesome inspirational ideas as an"}{" "}
                 <span
                   className={`text-2xl  ${
-                    role === "Seller" ? "text-[#FFD700]" : "text-[#4169E1]"
+                    role === "seller" ? "text-[#FFD700]" : "text-[#4169E1]"
                   } `}
                 >
-                  {role === "Seller" ? "Seller" : "Explorer"}
+                  {role === "seller" ? "Seller" : "Explorer"}
                 </span>
               </CardTitle>
               <CardDescription style={{ color: "	rgba(255, 255, 255, 0.60)" }}>
