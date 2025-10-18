@@ -8,26 +8,24 @@ export default function Signup() {
   const [color, setColor] = useState("rgba(255, 255, 255, 0.60)");
   const [secondColor, setSecondColor] = useState("#121212");
 
- 
   return (
     <div className="w-full bg-[#121212] ">
       <Header />
-        <div className="flex absolute bg-[#121212] min-h-screen w-full   flex-col justify-center items-center">
-          <Tabs defaultValue="buyer" className="w-[300px] mt-[100px] lg:w-[500px] ">
+      <div className="flex absolute bg-[#121212] min-h-screen w-full   flex-col justify-center items-center">
+        <Tabs
+          defaultValue="buyer"
+          className="w-[300px] mt-[100px] lg:w-[500px] "
+        >
+          <div className="flex flex-col gap-[5%] w-full">
+            {" "}
             <TabsList
               style={{ border: "2px solid rgba(255, 255, 255, 0.6)" }}
               className="bg-transparent border-2  "
             >
-              <TabsTrigger
-                style={{ color: color }}
-                value="seller"
-              >
+              <TabsTrigger style={{ color: color }} value="seller">
                 Seller
               </TabsTrigger>
-              <TabsTrigger
-                style={{ color: secondColor }}
-                value="buyer"
-              >
+              <TabsTrigger style={{ color: secondColor }} value="buyer">
                 Explorer
               </TabsTrigger>
             </TabsList>
@@ -54,8 +52,9 @@ export default function Signup() {
                 <SignupForm role="buyer" />
               </motion.div>
             </TabsContent>
-          </Tabs>
-        </div>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }

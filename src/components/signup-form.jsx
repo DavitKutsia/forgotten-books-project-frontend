@@ -30,6 +30,10 @@ export function SignupForm({ role, ...props }) {
     role: role,
   });
 
+  const handleGoogleLogin = (userRole) => {
+    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google?role=${userRole}`;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -62,7 +66,7 @@ export function SignupForm({ role, ...props }) {
       setData(data1);
       if (!res.ok) {
         setErrors(data1.message || "Signup failed");
-        setLoading(false)
+        setLoading(false);
       } else {
         setSignUpSuccess(true);
       }
@@ -91,7 +95,7 @@ export function SignupForm({ role, ...props }) {
           >
             <CardHeader>
               <CardTitle style={{ color: "rgba(255, 255, 255, 0.87)" }}>
-                {role === "Seller"
+                {role === "seller"
                   ? "Share/sell your creative story ideas as a"
                   : "Find awesome inspirational ideas as an"}{" "}
                 <span
@@ -177,6 +181,11 @@ export function SignupForm({ role, ...props }) {
                         Create Account
                       </Button>
                       <Button
+                        onClick={() =>
+                          handleGoogleLogin(
+                            role === "seller" ? "seller" : "buyer"
+                          )
+                        }
                         style={{
                           color: "#121212",
                           backgroundColor: "rgba(255, 255, 255, 0.60)",

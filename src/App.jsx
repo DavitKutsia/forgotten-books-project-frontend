@@ -3,9 +3,11 @@ import { Routes, Route } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
+import Createproduct from "./pages/Createproduct";
+import Userproducts from "./pages/Userproducts";
+import Adminpanel from "./pages/Adminpanel";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <div>
@@ -13,6 +15,9 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/SignUp" element={<Signup />} />
         <Route path="/SignIn" element={<Signin />} />
+        <Route path="/createproduct" element={<Createproduct />} />
+        <Route path="/userproducts" element={<Userproducts />} />
+        <Route path="/adminpanel" element={<Adminpanel />} />
       </Routes>
     </div>
   );

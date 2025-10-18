@@ -9,6 +9,7 @@ export default function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profileMenu, setProfileMenu] = useState(false);
+  const userRole = localStorage.getItem("role");
   const logOut = () => {
     localStorage.removeItem("token");
     setUser(null);
@@ -37,6 +38,7 @@ export default function Header() {
             setUser(data.user || data);
           } else {
             console.log(localStorage.getItem("token"));
+
             setUser(null);
           }
         } catch (err) {
@@ -98,13 +100,34 @@ export default function Header() {
               {user.name} 👋
             </h1>{" "}
             {profileMenu && (
-              <div className="right-[4%]  top-[90%]    rounded-2xl p-2 bg-gray-600/60 backdrop-blur-md   absolute">
+              <div className="right-[4%]  top-[90%] flex flex-col gap-2   rounded-2xl p-2 bg-gray-600/60 backdrop-blur-md   absolute">
                 <button
                   onClick={() => logOut()}
                   className="p-2 text-red-800 bg-[#121212] cursor-pointer  border-red-950 border-2 text-center text-xl  rounded-2xl"
                 >
                   Log Out
                 </button>
+                {userRole === "seller" && (
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => navigate("/createproduct")}
+                      className="p-2 text-white bg-[#121212] cursor-pointer  border-black border-2 text-center text-xl  rounded-2xl"
+                    >
+                      Create New Product
+                    </button>
+                    <button
+                      className="p-2 text-white bg-[#121212] cursor-pointer  border-black border-2 text-center text-xl  rounded-2xl"
+                      onClick={() => navigate("/userproducts")}
+                    >
+                      My products
+                    </button>
+                  </div>
+                )}
+                {userRole === "admin" && (
+                  <button className="p-2 text-yellow-500 bg-[#121212] cursor-pointer  border-black border-2 text-center text-xl  rounded-2xl">
+                    AdminPanel
+                  </button>
+                )}
               </div>
             )}
           </>
@@ -135,10 +158,15 @@ export default function Header() {
             >
               Homepage
             </span>
-            <div className="space-y-2">
-              <span className="block">About Us</span>
-              <div className="ml-4 space-y-1 text-gray-300"></div>
-            </div>
+            <span
+              onClick={() => {
+                navigate("/Aboutus");
+                setMobileNavOpen(false);
+              }}
+              className="block"
+            >
+              About Us
+            </span>
             <span
               onClick={() => {
                 navigate("/Contact");
@@ -148,14 +176,70 @@ export default function Header() {
             >
               Contact
             </span>
-            <button
-              onClick={() => {
-                setMobileNavOpen(false);
-              }}
-              className="w-full bg-blue-800 text-white py-2 rounded-xl mt-4 hover:bg-blue-600 transition"
-            >
-              Sign In/Up
-            </button>
+
+            {!user ? (
+              <button
+                onClick={() => {
+                  navigate("/SignUp");
+                  setMobileNavOpen(false);
+                }}
+                className="w-full bg-blue-800 text-white py-2 rounded-xl mt-4 hover:bg-blue-600 transition"
+              >
+                Sign In/Up
+              </button>
+            ) : (
+              <div className="space-y-2">
+              
+                <h1
+                  onClick={() => setProfileMenu((prev) => !prev)}
+                  className="text-xl rounded-xl border-2 p-2 border-[#121212] font-bold cursor-pointer"
+                >
+                  {user.name} 👋
+                </h1>
+                {profileMenu && (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <button
+                      onClick={() => {
+                        logOut();
+                        setMobileNavOpen(false);
+                      }}
+                      className="p-2 text-red-800 bg-[#121212] cursor-pointer border-red-950 border-2 text-center text-lg rounded-xl"
+                    >
+                      Log Out
+                    </button>
+
+                    {userRole === "seller" && (
+                      <>
+                        <button
+                          onClick={() => {
+                            navigate("/createproduct");
+                            setMobileNavOpen(false);
+                          }}
+                          className="p-2 text-white bg-[#121212] cursor-pointer border-black border-2 text-center text-lg rounded-xl"
+                        >
+                          Create New Product
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigate("/userproducts");
+                            setMobileNavOpen(false);
+                          }}
+                          className="p-2 text-white bg-[#121212] cursor-pointer border-black border-2 text-center text-lg rounded-xl"
+                        >
+                          My Products
+                        </button>
+                      </>
+                    )}
+
+                    {userRole === "admin" && (
+                      <button className="p-2 text-yellow-500 bg-[#121212] cursor-pointer border-black border-2 text-center text-lg rounded-xl">
+                        Admin Panel
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -27,7 +27,9 @@ export function LoginForm({ className, ...props }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
   };
-
+  const handleGoogleLogin = () => {
+    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google`;
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -48,6 +50,10 @@ export function LoginForm({ className, ...props }) {
         setError(data.message || "Login failed");
       } else {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.user.role);
+        localStorage.setItem("userId", data.user.id.trim());
+        console.log(data.user);
+
         navigate("/");
       }
     } catch (err) {
@@ -125,6 +131,7 @@ export function LoginForm({ className, ...props }) {
                   >
                     {loading ? "Logging in..." : "Login"}
                   </Button>
+
                   <Button
                     type="button"
                     variant="outline"
@@ -137,6 +144,20 @@ export function LoginForm({ className, ...props }) {
                     onClick={() => navigate("/signup")}
                   >
                     Sign up instead
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleGoogleLogin()}
+                    style={{
+                      color: "#121212",
+                      backgroundColor: "rgba(255, 255, 255, 0.60)",
+                      cursor: "pointer",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    Continue with Google
                   </Button>
                   <FieldDescription
                     style={{ color: "rgba(255,255,255,0.60)" }}
