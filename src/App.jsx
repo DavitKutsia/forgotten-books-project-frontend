@@ -6,6 +6,8 @@ import Signin from "./pages/Signin";
 import Createproduct from "./pages/Createproduct";
 import Userproducts from "./pages/Userproducts";
 import Adminpanel from "./pages/Adminpanel";
+import Stories from "./pages/Stories";  
+
 
 function App() {
 
@@ -18,6 +20,7 @@ function App() {
         <Route path="/createproduct" element={<Createproduct />} />
         <Route path="/userproducts" element={<Userproducts />} />
         <Route path="/adminpanel" element={<Adminpanel />} />
+        <Route path="/stories" element={<Stories />} />
       </Routes>
     </div>
   );

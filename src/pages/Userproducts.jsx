@@ -97,24 +97,35 @@ export default function UserProducts() {
     }
   };
 
-  const handleDelete = async (productId) => {
-    if (!window.confirm("Are you sure you want to delete this product?"))
-      return;
+const handleDelete = async (productId) => {
+  if (!window.confirm("Are you sure you want to delete this product?")) return;
+
+  try {
+    const res = await fetch(
+      `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+      {
+        method: "DELETE",
+        headers: { 
+          Authorization: `Bearer ${token}` 
+        },
+      }
+    );
+
+    let data;
     try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) setError(data.message || "Failed to delete product");
-      else setProducts((prev) => prev.filter((p) => p._id !== productId));
+      data = await res.json();
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      data = null; 
     }
-  };
+
+    if (!res.ok) setError(data?.message || "Failed to delete product");
+    else setProducts((prev) => prev.filter((p) => p._id !== productId));
+  } catch (err) {
+    setError("Something went wrong. Try again.");
+    console.log(err);
+  }
+};
+
 
   return (
     <div className="relative w-full min-h-screen bg-[#121212] text-white">

@@ -232,7 +232,10 @@ export default function Header() {
                     )}
 
                     {userRole === "admin" && (
-                      <button className="p-2 text-yellow-500 bg-[#121212] cursor-pointer border-black border-2 text-center text-lg rounded-xl">
+                      <button
+                        onClick={() => navigate("/adminpanel")}
+                        className="p-2 text-yellow-500 bg-[#121212] cursor-pointer border-black border-2 text-center text-lg rounded-xl"
+                      >
                         Admin Panel
                       </button>
                     )}
