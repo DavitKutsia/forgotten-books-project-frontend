@@ -82,14 +82,15 @@ export default function Header() {
             Contact
           </span>
         </section>
-        {!user ? (
+        {!user && (
           <button
             onClick={() => navigate("/SignUp")}
             className="hidden md:block text-xl w-[150px] h-[50px] bg-blue-800 rounded-2xl text-white hover:scale-105 transition hover:bg-blue-600 hover:shadow-lg"
           >
             Sign In/Up
           </button>
-        ) : (
+        )}
+        {user && !mobileNavOpen ? (
           <>
             <h1
               onClick={() => {
@@ -131,7 +132,7 @@ export default function Header() {
               </div>
             )}
           </>
-        )}
+        ) : null}
 
         <button
           className="md:hidden text-white"
@@ -189,7 +190,6 @@ export default function Header() {
               </button>
             ) : (
               <div className="space-y-2">
-              
                 <h1
                   onClick={() => setProfileMenu((prev) => !prev)}
                   className="text-xl rounded-xl border-2 p-2 border-[#121212] font-bold cursor-pointer"
