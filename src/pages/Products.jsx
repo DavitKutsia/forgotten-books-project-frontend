@@ -30,6 +30,8 @@ export default function Products() {
     fetchProducts();
   }, []);
 
+
+  
   return (
     <div className="relative w-full min-h-screen bg-[#121212] text-white">
       <Header />
