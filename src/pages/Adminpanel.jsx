@@ -29,6 +29,12 @@ export default function Adminpanel() {
     content: "",
     price: "",
   });
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUserData, setEditUserData] = useState({
+    name: "",
+    email: "",
+    role: "",
+  });
 
   const handleUserEditClick = (user) => {
     setEditUserId(user._id);
@@ -54,7 +60,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        `https://forgotten-books-project-backend.vercel.app/buyers/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -85,7 +91,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        `https://forgotten-books-project-backend.vercel.app/buyers/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -413,6 +419,7 @@ export default function Adminpanel() {
           ))}
           {buyerUsers.map((buyer) => (
             <div key={buyer._id} className="w-full relative">
+              <h1>Buyers/Explorers</h1>
               <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg">
                 <CardHeader>
                   {editUserId === buyer._id ? (
