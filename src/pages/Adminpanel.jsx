@@ -29,6 +29,13 @@ export default function Adminpanel() {
     content: "",
     price: "",
   });
+  const [editUserId, setEditUserId] = useState(null);
+const [editUserData, setEditUserData] = useState({
+  name: "",
+  email: "",
+  role: "",
+});
+
 
   const handleUserEditClick = (user) => {
     setEditUserId(user._id);
