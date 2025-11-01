@@ -30,6 +30,75 @@ export default function Adminpanel() {
     price: "",
   });
 
+  const handleUserEditClick = (user) => {
+    setEditUserId(user._id);
+    setEditUserData({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  };
+
+  const handleUserChange = (e) => {
+    const { name, value } = e.target;
+    setEditUserData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUserCancelEdit = () => {
+    setEditUserId(null);
+    setEditUserData({ name: "", email: "", role: "" });
+  };
+
+  const handleUserUpdate = async (userId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editUserData),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) setError(data.message || "Failed to update user");
+      else {
+        setBuyerUsers((prev) =>
+          prev.map((u) => (u._id === userId ? { ...u, ...editUserData } : u))
+        );
+        handleUserCancelEdit();
+      }
+    } catch (err) {
+      setError("Something went wrong updating user");
+    }
+  };
+
+  const handleUserDelete = async (userId) => {
+    const token = localStorage.getItem("token");
+
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) setError("Failed to delete user");
+      else setBuyerUsers((prev) => prev.filter((u) => u._id !== userId));
+    } catch (err) {
+      setError("Something went wrong deleting user");
+    }
+  };
+
   useEffect(() => {
     const fetchUsers = async () => {
       const token = localStorage.getItem("token");
@@ -107,7 +176,7 @@ export default function Adminpanel() {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchAllUsers = async () => {
+    const fetchBuyerUsers = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/SignUp");
@@ -130,7 +199,7 @@ export default function Adminpanel() {
         setError(err.message);
       }
     };
-    fetchAllUsers();
+    fetchBuyerUsers();
   }, [navigate]);
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -339,6 +408,80 @@ export default function Adminpanel() {
                     </>
                   )}
                 </CardContent>
+              </Card>
+            </div>
+          ))}
+          {buyerUsers.map((buyer) => (
+            <div key={buyer._id} className="w-full relative">
+              <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg">
+                <CardHeader>
+                  {editUserId === buyer._id ? (
+                    <>
+                      <Input
+                        name="name"
+                        value={editUserData.name}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white mb-2"
+                      />
+                      <Input
+                        name="email"
+                        value={editUserData.email}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white mb-2"
+                      />
+                      <Input
+                        name="role"
+                        value={editUserData.role}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white mb-2"
+                      />
+                      <div className="flex gap-2 mt-2">
+                        <Button onClick={() => handleUserUpdate(buyer._id)}>
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={handleUserCancelEdit}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <CardTitle className="text-lg text-white">
+                        {buyer.name} ({buyer.email}) - {buyer.role}
+                      </CardTitle>
+                      <Ellipsis
+                        onClick={() =>
+                          setEdit((prev) =>
+                            prev === buyer._id ? null : buyer._id
+                          )
+                        }
+                        className="cursor-pointer text-gray-400 absolute right-[3%]"
+                      />
+                      {edit === buyer._id && (
+                        <div className="absolute opacity-60 top-[30%] right-[1%] bg-gray-700 p-3 rounded-md flex flex-col gap-2 z-50">
+                          <button
+                            onClick={() => {
+                              handleUserEditClick(buyer);
+                              setEdit(false);
+                            }}
+                            className="text-white hover:bg-gray-600 px-2 py-1 rounded"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleUserDelete(buyer._id)}
+                            className="text-red-900 hover:bg-gray-600 px-2 py-1 rounded"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </CardHeader>
               </Card>
             </div>
           ))}
