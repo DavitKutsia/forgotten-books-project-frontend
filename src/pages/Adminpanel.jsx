@@ -16,6 +16,7 @@ import { Ellipsis } from "lucide-react";
 
 export default function Adminpanel() {
   const [edit, setEdit] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [stats, setStats] = useState(null);
@@ -41,7 +42,7 @@ export default function Adminpanel() {
     setEditUserData({
       name: buyer.name,
       email: buyer.email,
-      password: "", 
+      password: buyer.password,
       role: buyer.role,
     });
   };
@@ -115,49 +116,53 @@ export default function Adminpanel() {
     }
   };
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
+ useEffect(() => {
+  const fetchUsers = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/SignUp");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(
+        "https://forgotten-books-project-backend.vercel.app/auth/profile",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      const user = data?.user;
+
+      if (!res.ok || !user) {
         navigate("/SignUp");
         return;
       }
 
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/auth/profile",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setError(data.message || "Failed to fetch user profile");
-          return;
-        }
-
-        setUserData(data);
-
-        if (data.user.role !== "admin") {
-          navigate("/SignUp");
-        }
-      } catch (err) {
-        setError("Something went wrong. Try again.");
-      } finally {
-        setLoading(false);
+      if (user.role !== "admin") {
+        navigate("/SignUp");
+        return;
       }
-    };
 
-    fetchUsers();
-  }, [navigate]);
+      setUserData(user);
+    } catch (err) {
+      setError("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUsers();
+}, [navigate]);
+
 
   useEffect(() => {
     const fetchAdminStats = async () => {
