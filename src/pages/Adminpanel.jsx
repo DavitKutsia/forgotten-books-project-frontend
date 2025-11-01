@@ -29,82 +29,96 @@ export default function Adminpanel() {
     content: "",
     price: "",
   });
-  const [editUserId, setEditUserId] = useState(null);
+const [editUserId, setEditUserId] = useState(null);
 const [editUserData, setEditUserData] = useState({
   name: "",
   email: "",
-  role: "",
+  password: "",
+  role: ""
 });
 
+// Buyer: open edit mode
+const handleUserEditClick = (buyer) => {
+  setEditUserId(buyer._id);
+  setEditUserData({
+    name: buyer.name,
+    email: buyer.email,
+    password: "", // admin must type new one if changing
+    role: buyer.role
+  });
+};
 
-  const handleUserEditClick = (user) => {
-    setEditUserId(user._id);
-    setEditUserData({
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    });
-  };
+// Buyer: cancel
+const handleUserCancelEdit = () => {
+  setEditUserId(null);
+  setEditUserData({ name: "", email: "", password: "", role: "" });
+};
 
-  const handleUserChange = (e) => {
-    const { name, value } = e.target;
-    setEditUserData((prev) => ({ ...prev, [name]: value }));
-  };
+// Buyer: input change
+const handleUserChange = (e) => {
+  const { name, value } = e.target;
+  setEditUserData((prev) => ({ ...prev, [name]: value }));
+};
 
-  const handleUserCancelEdit = () => {
-    setEditUserId(null);
-    setEditUserData({ name: "", email: "", role: "" });
-  };
+// Buyer: update
+const handleUserUpdate = async (buyerId) => {
+  const token = localStorage.getItem("token");
 
-  const handleUserUpdate = async (userId) => {
-    const token = localStorage.getItem("token");
-
-    try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(editUserData),
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok) setError(data.message || "Failed to update user");
-      else {
-        setBuyerUsers((prev) =>
-          prev.map((u) => (u._id === userId ? { ...u, ...editUserData } : u))
-        );
-        handleUserCancelEdit();
+  try {
+    const res = await fetch(
+      `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(editUserData)
       }
-    } catch (err) {
-      setError("Something went wrong updating user");
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message || "Failed to update user");
+      return;
     }
-  };
 
-  const handleUserDelete = async (userId) => {
-    const token = localStorage.getItem("token");
+    setBuyerUsers((prev) =>
+      prev.map((u) => (u._id === buyerId ? { ...u, ...editUserData } : u))
+    );
 
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    handleUserCancelEdit();
+  } catch (err) {
+    alert("Something went wrong.");
+  }
+};
 
-    try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+// Buyer: delete
+const handleUserDelete = async (buyerId) => {
+  const token = localStorage.getItem("token");
 
-      if (!res.ok) setError("Failed to delete user");
-      else setBuyerUsers((prev) => prev.filter((u) => u._id !== userId));
-    } catch (err) {
-      setError("Something went wrong deleting user");
+  if (!window.confirm("Delete this user?")) return;
+
+  try {
+    const res = await fetch(
+      `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    if (!res.ok) {
+      alert("Failed to delete user");
+      return;
     }
-  };
+
+    setBuyerUsers((prev) => prev.filter((u) => u._id !== buyerId));
+  } catch (err) {
+    alert("Something went wrong");
+  }
+};
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -420,6 +434,7 @@ const [editUserData, setEditUserData] = useState({
           ))}
           {buyerUsers.map((buyer) => (
             <div key={buyer._id} className="w-full relative">
+              <h1>Buyers/Explorers</h1>
               <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg">
                 <CardHeader>
                   {editUserId === buyer._id ? (
