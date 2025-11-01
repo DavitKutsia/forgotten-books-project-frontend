@@ -16,7 +16,6 @@ import { Ellipsis } from "lucide-react";
 
 export default function Adminpanel() {
   const [edit, setEdit] = useState(null);
-  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [stats, setStats] = useState(null);
@@ -29,96 +28,92 @@ export default function Adminpanel() {
     content: "",
     price: "",
   });
-const [editUserId, setEditUserId] = useState(null);
-const [editUserData, setEditUserData] = useState({
-  name: "",
-  email: "",
-  password: "",
-  role: ""
-});
-
-// Buyer: open edit mode
-const handleUserEditClick = (buyer) => {
-  setEditUserId(buyer._id);
-  setEditUserData({
-    name: buyer.name,
-    email: buyer.email,
-    password: "", // admin must type new one if changing
-    role: buyer.role
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUserData, setEditUserData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "",
   });
-};
 
-// Buyer: cancel
-const handleUserCancelEdit = () => {
-  setEditUserId(null);
-  setEditUserData({ name: "", email: "", password: "", role: "" });
-};
+  const handleUserEditClick = (buyer) => {
+    setEditUserId(buyer._id);
+    setEditUserData({
+      name: buyer.name,
+      email: buyer.email,
+      password: "", 
+      role: buyer.role,
+    });
+  };
 
-// Buyer: input change
-const handleUserChange = (e) => {
-  const { name, value } = e.target;
-  setEditUserData((prev) => ({ ...prev, [name]: value }));
-};
 
-// Buyer: update
-const handleUserUpdate = async (buyerId) => {
-  const token = localStorage.getItem("token");
+  const handleUserCancelEdit = () => {
+    setEditUserId(null);
+    setEditUserData({ name: "", email: "", password: "", role: "" });
+  };
 
-  try {
-    const res = await fetch(
-      `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(editUserData)
+  const handleUserChange = (e) => {
+    const { name, value } = e.target;
+    setEditUserData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUserUpdate = async (buyerId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editUserData),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Failed to update user");
+        return;
       }
-    );
 
-    const data = await res.json();
+      setBuyerUsers((prev) =>
+        prev.map((u) => (u._id === buyerId ? { ...u, ...editUserData } : u))
+      );
 
-    if (!res.ok) {
-      alert(data.message || "Failed to update user");
-      return;
+      handleUserCancelEdit();
+    } catch (err) {
+      alert("Something went wrong.");
     }
+  };
 
-    setBuyerUsers((prev) =>
-      prev.map((u) => (u._id === buyerId ? { ...u, ...editUserData } : u))
-    );
+  const handleUserDelete = async (buyerId) => {
+    const token = localStorage.getItem("token");
 
-    handleUserCancelEdit();
-  } catch (err) {
-    alert("Something went wrong.");
-  }
-};
+    if (!window.confirm("Delete this user?")) return;
 
-// Buyer: delete
-const handleUserDelete = async (buyerId) => {
-  const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-  if (!window.confirm("Delete this user?")) return;
-
-  try {
-    const res = await fetch(
-      `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
-      {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
+      if (!res.ok) {
+        alert("Failed to delete user");
+        return;
       }
-    );
 
-    if (!res.ok) {
-      alert("Failed to delete user");
-      return;
+      setBuyerUsers((prev) => prev.filter((u) => u._id !== buyerId));
+    } catch (err) {
+      alert("Something went wrong");
     }
-
-    setBuyerUsers((prev) => prev.filter((u) => u._id !== buyerId));
-  } catch (err) {
-    alert("Something went wrong");
-  }
-};
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -342,7 +337,6 @@ const handleUserDelete = async (buyerId) => {
         </section>
         <section className="p-10 bg-gray-800 flex flex-wrap flex-col gap-5 w-full text-gray-200 rounded-lg mt-10">
           <h1 className="text-2xl mb-5">Product List</h1>
-
           {products.map((product) => (
             <div key={product._id} className="w-full relative">
               <Card
@@ -431,10 +425,10 @@ const handleUserDelete = async (buyerId) => {
                 </CardContent>
               </Card>
             </div>
-          ))}
+          ))}{" "}
+          <h1>Buyers/Explorers</h1>
           {buyerUsers.map((buyer) => (
             <div key={buyer._id} className="w-full relative">
-              <h1>Buyers/Explorers</h1>
               <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg">
                 <CardHeader>
                   {editUserId === buyer._id ? (
@@ -457,6 +451,15 @@ const handleUserDelete = async (buyerId) => {
                         onChange={handleUserChange}
                         className="bg-[#333333] text-white mb-2"
                       />
+                      <Input
+                        name="password"
+                        type="password"
+                        placeholder="New password"
+                        value={editUserData.password}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white mb-2"
+                      />
+
                       <div className="flex gap-2 mt-2">
                         <Button onClick={() => handleUserUpdate(buyer._id)}>
                           Save
