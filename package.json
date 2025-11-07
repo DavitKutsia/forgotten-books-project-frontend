@@ -18,11 +18,19 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.22",
+<<<<<<< HEAD
+=======
+    "js-cookie": "^3.0.5",
+>>>>>>> 29e224d (stripe)
     "lucide-react": "^0.544.0",
     "object-assign": "^4.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3",
+<<<<<<< HEAD
+=======
+    "react-toastify": "^11.0.5",
+>>>>>>> 29e224d (stripe)
     "recharts": "^2.15.4",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.14"
