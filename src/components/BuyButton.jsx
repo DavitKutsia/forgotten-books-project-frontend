@@ -10,14 +10,21 @@ export default function BuyButton({ product }) {
     }
 
     try {
-      const resp = await fetch(`http://localhost:4000/stripe/checkout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(product),
-      });
+      const resp = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productName: product.title || product.productName,
+            amount: product.price || product.amount,
+            description: product.description || "",
+          }),
+        }
+      );
 
       const data = await resp.json();
 
@@ -34,10 +41,10 @@ export default function BuyButton({ product }) {
 
   return (
     <button
-    onClick={handleCheckout}
-    className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+      onClick={handleCheckout}
+      className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
     >
-        Buy Now (${product?.amount ?? product?.price ?? "0"})
+      Buy Now (${product?.price ?? product?.amount ?? "0"})
     </button>
   );
 }
