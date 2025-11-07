@@ -101,7 +101,14 @@ export default function Header() {
               {user.name} 👋
             </h1>{" "}
             {profileMenu && (
+              
               <div className="right-[4%]  top-[90%] flex flex-col gap-2   rounded-2xl p-2 bg-gray-600/60 backdrop-blur-md   absolute">
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="p-2 text-white bg-[#121212] cursor-pointer border-black border-2 text-center text-xl rounded-2xl"
+                >
+                  Profile
+                </button>
                 <button
                   onClick={() => logOut()}
                   className="p-2 text-red-800 bg-[#121212] cursor-pointer  border-red-950 border-2 text-center text-xl  rounded-2xl"
@@ -251,3 +258,4 @@ export default function Header() {
     </div>
   );
 }
+
