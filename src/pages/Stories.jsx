@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import BuyButton from "../components/BuyButton";
+
 export default function Stories() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -27,12 +22,13 @@ export default function Stories() {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
         const data = await res.json();
+
         if (!res.ok) {
           setError(data.message || "Failed to fetch products");
           navigate("/SignUp");
@@ -49,13 +45,13 @@ export default function Stories() {
     };
 
     fetchProducts();
-  }, []);
+  }, [token, navigate]);
 
   return (
     <div className="bg-[#121212] min-h-screen">
       <Header />
-      <div className="p-25">
-        <h1 className="text-3xl mb-6  text-white">All Stories</h1>
+      <div className="p-8">
+        <h1 className="text-3xl mb-6 text-white">All Stories</h1>
         {loading && <p className="text-blue-400">Loading stories...</p>}
         {error && <p className="text-red-500">{error}</p>}
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -66,9 +62,7 @@ export default function Stories() {
             return (
               <Card
                 key={product._id}
-                className={`bg-[#1E1E1E] ${
-                  isOwnProduct ? "hidden" : ""
-                } border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg`}
+                className={`bg-[#1E1E1E] ${isOwnProduct ? "hidden" : ""} border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg`}
               >
                 <CardHeader>
                   <CardTitle className="text-lg text-white">
@@ -77,13 +71,15 @@ export default function Stories() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-gray-300">
-                    {product.description ||
-                      product.content ||
-                      "No description available."}
+                    {product.description || product.content || "No description available."}
                   </CardDescription>
+
                   <p className="mt-2 text-yellow-400 font-semibold">
-                    Price: ${product.price}
+                    Price: ${product.price ?? "0"}
                   </p>
+
+                  <BuyButton product={product} />
+
                   {product.tags && (
                     <p className="mt-1 text-gray-400 text-sm">
                       Tags: {product.tags.join(", ")}
