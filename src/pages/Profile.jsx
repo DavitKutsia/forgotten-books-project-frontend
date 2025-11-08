@@ -86,10 +86,10 @@ export default function Profile() {
 
 return (
   <div className="min-h-screen bg-[#0a192f] text-gray-100 flex flex-col">
-    {/* Header stays fixed at top */}
+  
     <Header />
 
-    {/* Main content */}
+
     <main className="flex-grow flex justify-center items-center px-4 pt-32 pb-16">
       <section className="w-full max-w-2xl bg-[#112240]/70 backdrop-blur-xl border border-[#1b2d4f] rounded-2xl shadow-2xl p-10 flex flex-col items-center text-center transition-all duration-300 hover:shadow-blue-900/30">
         {user ? (
