@@ -332,23 +332,36 @@ export default function Adminpanel() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
-  return (
-    <div className="flex gap-10 w-full min-h-screen justify-center items-center">
-      <section className="w-full min-h-screen justify-center items-center">
-        <Header />
-        <section className="flex flex-wrap py-30 justify-center items-start gap-10">
-          <ChartPieUsers data={stats?.pieChartUsersData} />
-          <ChartLineProducts data={stats?.lineChartProductsData} />
-        </section>
-        <section className="p-10 bg-gray-800 flex flex-wrap flex-col gap-5 w-full text-gray-200 rounded-lg mt-10">
-          <h1 className="text-2xl mb-5">Product List</h1>
-          {products.map((product) => (
-            <div key={product._id} className="w-full relative">
-              <Card
+ return (
+  <div className="min-h-screen w-full bg-[#0a192f] text-gray-100 flex flex-col">
+    <Header />
+
+    {/* Charts Section */}
+    <section className="pt-28 px-10 flex flex-wrap justify-center items-start gap-10">
+      <ChartPieUsers data={stats?.pieChartUsersData} />
+      <ChartLineProducts data={stats?.lineChartProductsData} />
+    </section>
+
+    {/* Products Table */}
+    <section className="mt-14 px-10">
+      <h1 className="text-3xl font-bold mb-6 text-blue-300">Products</h1>
+      <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
+        <table className="min-w-full text-left text-gray-200">
+          <thead className="bg-[#1b2d4f]/70 text-blue-300">
+            <tr>
+              <th className="py-3 px-4">Title</th>
+              <th className="py-3 px-4">Description</th>
+              <th className="py-3 px-4">Price</th>
+              <th className="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr
                 key={product._id}
-                className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg"
+                className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
               >
-                <CardHeader>
+                <td className="py-3 px-4">
                   {editProductId === product._id ? (
                     <Input
                       name="title"
@@ -357,166 +370,157 @@ export default function Adminpanel() {
                       className="bg-[#333333] text-white"
                     />
                   ) : (
-                    <CardTitle className="text-lg text-white">
-                      {product.title}
-                    </CardTitle>
+                    product.title
                   )}
-                  <Ellipsis
-                    onClick={() =>
-                      setEdit((prev) =>
-                        prev === product._id ? null : product._id
-                      )
-                    }
-                    className="cursor-pointer text-gray-400 absolute right-[3%]"
-                  />
-                  {edit === product._id && (
-                    <div className="absolute opacity-60 top-[30%] right-[1%] bg-gray-700 p-3 rounded-md flex flex-col gap-2 z-50">
+                </td>
+                <td className="py-3 px-4">
+                  {editProductId === product._id ? (
+                    <textarea
+                      name="content"
+                      value={editData.content}
+                      onChange={handleChange}
+                      rows={3}
+                      className="w-full resize-none bg-[#333333] text-white p-2 rounded"
+                    />
+                  ) : (
+                    product.content || "—"
+                  )}
+                </td>
+                <td className="py-3 px-4 text-yellow-400 font-semibold">
+                  {editProductId === product._id ? (
+                    <Input
+                      type="number"
+                      name="price"
+                      value={editData.price}
+                      onChange={handleChange}
+                      className="bg-[#333333] text-white"
+                    />
+                  ) : (
+                    `$${product.price}`
+                  )}
+                </td>
+                <td className="py-3 px-4 text-right">
+                  {editProductId === product._id ? (
+                    <div className="flex justify-end gap-2">
+                      <Button onClick={() => handleUpdate(product._id)}>
+                        Save
+                      </Button>
+                      <Button variant="outline" onClick={handleCancelEdit}>
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-end gap-3">
                       <button
-                        onClick={() => {
-                          handleEditClick(product);
-                          setEdit(false);
-                        }}
-                        className="text-white hover:bg-gray-600 px-2 py-1 rounded"
+                        onClick={() => handleEditClick(product)}
+                        className="text-blue-400 hover:text-blue-300 transition"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(product._id)}
-                        className="text-red-900 hover:bg-gray-600 px-2 py-1 rounded"
+                        className="text-red-500 hover:text-red-400 transition"
                       >
                         Delete
                       </button>
                     </div>
                   )}
-                </CardHeader>
-                <CardContent>
-                  {editProductId === product._id ? (
-                    <>
-                      <textarea
-                        name="content"
-                        value={editData.content}
-                        onChange={handleChange}
-                        rows={5}
-                        className="w-full resize-none bg-[#333333] p-2 rounded text-white"
-                      />
-                      <Input
-                        type="number"
-                        name="price"
-                        value={editData.price}
-                        onChange={handleChange}
-                        className="bg-[#333333] text-white mt-2"
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <Button onClick={() => handleUpdate(product._id)}>
-                          Save
-                        </Button>
-                        <Button onClick={handleCancelEdit} variant="outline">
-                          Cancel
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <CardDescription className="text-gray-300">
-                        {product.content ||
-                          product.content ||
-                          "No description available."}
-                      </CardDescription>
-                      <p className="mt-2 text-yellow-400 font-semibold">
-                        Price: ${product.price}
-                      </p>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          ))}{" "}
-          <h1>Buyers/Explorers</h1>
-          {buyerUsers.map((buyer) => (
-            <div key={buyer._id} className="w-full relative">
-              <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] shadow-lg">
-                <CardHeader>
-                  {editUserId === buyer._id ? (
-                    <>
-                      <Input
-                        name="name"
-                        value={editUserData.name}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white mb-2"
-                      />
-                      <Input
-                        name="email"
-                        value={editUserData.email}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white mb-2"
-                      />
-                      <Input
-                        name="role"
-                        value={editUserData.role}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white mb-2"
-                      />
-                      <Input
-                        name="password"
-                        type="password"
-                        placeholder="New password"
-                        value={editUserData.password}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white mb-2"
-                      />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-                      <div className="flex gap-2 mt-2">
-                        <Button onClick={() => handleUserUpdate(buyer._id)}>
-                          Save
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={handleUserCancelEdit}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </>
+    {/* Users Table */}
+    <section className="mt-16 px-10 mb-20">
+      <h1 className="text-3xl font-bold mb-6 text-blue-300">Buyers / Explorers</h1>
+      <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
+        <table className="min-w-full text-left text-gray-200">
+          <thead className="bg-[#1b2d4f]/70 text-blue-300">
+            <tr>
+              <th className="py-3 px-4">Name</th>
+              <th className="py-3 px-4">Email</th>
+              <th className="py-3 px-4">Role</th>
+              <th className="py-3 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {buyerUsers.map((buyer) => (
+              <tr
+                key={buyer._id}
+                className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
+              >
+                <td className="py-3 px-4">
+                  {editUserId === buyer._id ? (
+                    <Input
+                      name="name"
+                      value={editUserData.name}
+                      onChange={handleUserChange}
+                      className="bg-[#333333] text-white"
+                    />
                   ) : (
-                    <>
-                      <CardTitle className="text-lg text-white">
-                        {buyer.name} ({buyer.email}) - {buyer.role}
-                      </CardTitle>
-                      <Ellipsis
-                        onClick={() =>
-                          setEdit((prev) =>
-                            prev === buyer._id ? null : buyer._id
-                          )
-                        }
-                        className="cursor-pointer text-gray-400 absolute right-[3%]"
-                      />
-                      {edit === buyer._id && (
-                        <div className="absolute opacity-60 top-[30%] right-[1%] bg-gray-700 p-3 rounded-md flex flex-col gap-2 z-50">
-                          <button
-                            onClick={() => {
-                              handleUserEditClick(buyer);
-                              setEdit(false);
-                            }}
-                            className="text-white hover:bg-gray-600 px-2 py-1 rounded"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleUserDelete(buyer._id)}
-                            className="text-red-900 hover:bg-gray-600 px-2 py-1 rounded"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </>
+                    buyer.name
                   )}
-                </CardHeader>
-              </Card>
-            </div>
-          ))}
-        </section>
-      </section>
-    </div>
-  );
+                </td>
+                <td className="py-3 px-4">
+                  {editUserId === buyer._id ? (
+                    <Input
+                      name="email"
+                      value={editUserData.email}
+                      onChange={handleUserChange}
+                      className="bg-[#333333] text-white"
+                    />
+                  ) : (
+                    buyer.email
+                  )}
+                </td>
+                <td className="py-3 px-4">
+                  {editUserId === buyer._id ? (
+                    <Input
+                      name="role"
+                      value={editUserData.role}
+                      onChange={handleUserChange}
+                      className="bg-[#333333] text-white"
+                    />
+                  ) : (
+                    buyer.role
+                  )}
+                </td>
+                <td className="py-3 px-4 text-right">
+                  {editUserId === buyer._id ? (
+                    <div className="flex justify-end gap-2">
+                      <Button onClick={() => handleUserUpdate(buyer._id)}>
+                        Save
+                      </Button>
+                      <Button variant="outline" onClick={handleUserCancelEdit}>
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => handleUserEditClick(buyer)}
+                        className="text-blue-400 hover:text-blue-300 transition"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleUserDelete(buyer._id)}
+                        className="text-red-500 hover:text-red-400 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+);
 }
