@@ -5,31 +5,35 @@ import Header from "../components/Header";
 import { toast } from "react-toastify";
 import "../index.css";
 
-export default function Profile() {
+export default function SellerProfile() {
   const [user, setUser] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
   const token = Cookies.get("token") || localStorage.getItem("token");
 
   const getUserProfile = async () => {
-  try {
-    const res = await fetch(
-      "https://forgotten-books-project-backend.vercel.app/auth/profile",
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    try {
+      const res = await fetch(
+        "https://forgotten-books-project-backend.vercel.app/auth/profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-    const data = await res.json();
-    console.log("Fetched data:", data);
-
-    setUser(data.user || data); 
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to fetch profile");
-    navigate("/SignIn");
-  }
-};
-
+      const data = await res.json();
+      setUser(data.user || data);
+      setFormData({
+        name: data.user?.name || data.name || "",
+        email: data.user?.email || data.email || "",
+        password: "",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch profile");
+      navigate("/SignIn");
+    }
+  };
 
   const handleUploadAvatar = async (e) => {
     const file = e.target.files[0];
@@ -38,88 +42,79 @@ export default function Profile() {
     const formData = new FormData();
     formData.append("avatar", file);
 
-    let uploadUrl;
-    if (user?.role === "seller") {
-      uploadUrl =
-        "https://forgotten-books-project-backend.vercel.app/seller";
-    } else if (user?.role === "buyer") {
-      uploadUrl =
-        "https://forgotten-books-project-backend.vercel.app/buyer";
-    } else {
-      toast.info("Admin cannot change avatar.");
-      return;
-    }
-
     try {
-      const res = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
+      const res = await fetch(
+        "https://forgotten-books-project-backend.vercel.app/sellers/upload-avatar",
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update avatar");
 
       toast.success("Avatar updated!");
-      setUser(data.data);
+      setUser(data.data || data);
     } catch (err) {
       toast.error(err.message || "Upload failed");
     }
   };
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/SignIn");
-    } else {
-      getUserProfile();
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/sellers/${user._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update profile");
+
+      toast.success("Profile updated successfully!");
+      setUser(data.user || data);
+      setEditMode(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Failed to update profile");
     }
+  };
+
+  useEffect(() => {
+    if (!token) navigate("/SignIn");
+    else getUserProfile();
   }, [token, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      console.log(user.name);
-      console.log(user.email);
-      console.log(user.role);
-      console.log(user)
-    }
-  }, [user]);
+  return (
+    <div className="min-h-screen bg-[#0a192f] text-gray-100 flex flex-col">
+      {/* Header fixed at top */}
+      <Header />
 
-return (
-  <div className="min-h-screen bg-[#0a192f] text-gray-100 flex flex-col">
-  
-    <Header />
-
-
-    <main className="flex-grow flex justify-center items-center px-4 pt-32 pb-16">
-      <section className="w-full max-w-2xl bg-[#112240]/70 backdrop-blur-xl border border-[#1b2d4f] rounded-2xl shadow-2xl p-10 flex flex-col items-center text-center transition-all duration-300 hover:shadow-blue-900/30">
-        {user ? (
-          <div className="flex flex-col items-center">
-            <div className="mb-6">
-              <h1 className="text-4xl font-bold text-blue-300 mb-2">
-                {user?.name}
-              </h1>
-              <p className="text-gray-400">{user?.email}</p>
-              <p className="text-gray-400 italic mt-1">Role: {user?.role}</p>
-            </div>
-
-            {user?.role !== "admin" && (
-              <div id="avatarInputDiv" className="flex flex-col items-center gap-5 mt-4">
-                <div className="relative group">
-                  <img
-                    src={user.avatar || "/vite.svg"}
-                    alt="avatar"
-                    className="w-36 h-36 object-cover rounded-full border-4 border-blue-400 shadow-lg group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-sm text-blue-300">
-                    Change Photo
-                  </div>
-                </div>
-
+      <main className="flex-grow flex justify-center items-center px-4 pt-28 pb-16">
+        <section className="w-full max-w-3xl bg-[#112240]/80 backdrop-blur-lg border border-[#1b2d4f] rounded-2xl shadow-2xl p-10 flex flex-col items-center text-center transition-all duration-300 hover:shadow-blue-900/30">
+          {user ? (
+            <div className="flex flex-col items-center w-full">
+              {/* Avatar */}
+              <div className="relative mb-8 group">
+                <img
+                  src={user.avatar || "/vite.svg"}
+                  alt="avatar"
+                  className="w-36 h-36 object-cover rounded-full border-4 border-blue-400 shadow-lg group-hover:scale-105 transition-transform duration-300"
+                />
                 <label
                   htmlFor="avatarInput"
-                  className="px-5 py-2 rounded-full bg-blue-700 hover:bg-blue-600 text-white text-sm cursor-pointer transition shadow-md hover:shadow-blue-600/40"
+                  className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-sm text-blue-300 cursor-pointer"
                 >
-                  Upload New Avatar
+                  Change Photo
                 </label>
                 <input
                   onChange={handleUploadAvatar}
@@ -128,24 +123,95 @@ return (
                   className="hidden"
                 />
               </div>
-            )}
 
-            <div className="mt-10">
-              <button
-                onClick={() => navigate("/")}
-                className="px-6 py-2 bg-blue-800 hover:bg-blue-700 rounded-xl shadow-md hover:shadow-blue-700/40 text-white transition"
-              >
-                Back to Homepage
-              </button>
+              {/* Info */}
+              <div className="mb-6">
+                <h1 className="text-4xl font-semibold text-blue-300 mb-1">{user?.name}</h1>
+                <p className="text-gray-400">{user?.email}</p>
+                <p className="text-sm text-blue-500 italic mt-1">Seller Account</p>
+              </div>
+
+              {/* Edit Form */}
+              <div className="w-full mt-4">
+                {!editMode ? (
+                  <button
+                    onClick={() => setEditMode(true)}
+                    className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
+                  >
+                    Edit Profile
+                  </button>
+                ) : (
+                  <form
+                    onSubmit={handleUpdateProfile}
+                    className="flex flex-col gap-5 mt-6 text-left w-full max-w-md mx-auto"
+                  >
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full p-2 rounded-md bg-[#0a192f] border border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-1">Email</label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full p-2 rounded-md bg-[#0a192f] border border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-1">New Password</label>
+                      <input
+                        type="password"
+                        placeholder="Leave blank to keep old password"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        className="w-full p-2 rounded-md bg-[#0a192f] border border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 mt-3">
+                      <button
+                        type="submit"
+                        className="flex-1 bg-green-700 hover:bg-green-600 text-white py-2 rounded-md shadow-md hover:shadow-green-700/40"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditMode(false)}
+                        className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-md shadow-md hover:shadow-gray-600/30"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+
+              {/* Back button */}
+              <div className="mt-12">
+                <button
+                  onClick={() => navigate("/")}
+                  className="px-6 py-2 bg-blue-800 hover:bg-blue-700 rounded-xl shadow-md hover:shadow-blue-700/40 text-white transition"
+                >
+                  Back to Homepage
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <h2 className="text-blue-300 text-lg animate-pulse mt-12">
-            Loading profile...
-          </h2>
-        )}
-      </section>
-    </main>
-  </div>
-);
+          ) : (
+            <h2 className="text-blue-300 text-lg animate-pulse mt-12">
+              Loading profile...
+            </h2>
+          )}
+        </section>
+      </main>
+    </div>
+  );
 }
