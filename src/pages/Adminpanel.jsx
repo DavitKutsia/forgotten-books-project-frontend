@@ -36,6 +36,7 @@ export default function Adminpanel() {
     password: "",
     role: "",
   });
+  const [sellerUsers, setSellerUsers] = useState([]);
 
   const handleUserEditClick = (buyer) => {
     setEditUserId(buyer._id);
@@ -46,7 +47,6 @@ export default function Adminpanel() {
       role: buyer.role,
     });
   };
-
 
   const handleUserCancelEdit = () => {
     setEditUserId(null);
@@ -116,53 +116,52 @@ export default function Adminpanel() {
     }
   };
 
- useEffect(() => {
-  const fetchUsers = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/SignUp");
-      return;
-    }
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/SignUp");
+        return;
+      }
 
-    setLoading(true);
-    setError("");
+      setLoading(true);
+      setError("");
 
-    try {
-      const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/auth/profile",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      try {
+        const res = await fetch(
+          "https://forgotten-books-project-backend.vercel.app/auth/profile",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+
+        const user = data?.user;
+
+        if (!res.ok || !user) {
+          navigate("/SignUp");
+          return;
         }
-      );
 
-      const data = await res.json();
+        if (user.role !== "admin") {
+          navigate("/SignUp");
+          return;
+        }
 
-      const user = data?.user;
-
-      if (!res.ok || !user) {
-        navigate("/SignUp");
-        return;
+        setUserData(user);
+      } catch (err) {
+        setError("Something went wrong. Try again.");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (user.role !== "admin") {
-        navigate("/SignUp");
-        return;
-      }
-
-      setUserData(user);
-    } catch (err) {
-      setError("Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchUsers();
-}, [navigate]);
-
+    fetchUsers();
+  }, [navigate]);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
@@ -328,199 +327,379 @@ export default function Adminpanel() {
       console.log(err);
     }
   };
+  const handleSellerEditClick = (seller) => {
+    setEditUserId(seller._id);
+    setEditUserData({
+      name: seller.name,
+      email: seller.email,
+      password: seller.password,
+      role: seller.role,
+    });
+  };
+
+  const handleSellerUpdate = async (sellerId) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/sellers/${sellerId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editUserData),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Failed to update seller");
+        return;
+      }
+      setSellerUsers((prev) =>
+        prev.map((s) => (s._id === sellerId ? { ...s, ...editUserData } : s))
+      );
+      handleUserCancelEdit();
+    } catch (err) {
+      alert("Something went wrong.");
+    }
+  };
+
+  const handleSellerDelete = async (sellerId) => {
+    const token = localStorage.getItem("token");
+    if (!window.confirm("Delete this seller?")) return;
+    try {
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/sellers/${sellerId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) {
+        alert("Failed to delete seller");
+        return;
+      }
+      setSellerUsers((prev) => prev.filter((s) => s._id !== sellerId));
+    } catch (err) {
+      alert("Something went wrong");
+    }
+  };
+  useEffect(() => {
+    const fetchSellerUsers = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/SignUp");
+        return;
+      }
+      try {
+        const res = await fetch(
+          "https://forgotten-books-project-backend.vercel.app/sellers",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch sellers");
+        const data = await res.json();
+        setSellerUsers(data);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchSellerUsers();
+  }, [navigate]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
- return (
-  <div className="min-h-screen w-full bg-[#0a192f] text-gray-100 flex flex-col">
-    <Header />
+  return (
+    <div className="min-h-screen w-full bg-[#0a192f] text-gray-100 flex flex-col">
+      <Header />
 
-    {/* Charts Section */}
-    <section className="pt-28 px-10 flex flex-wrap justify-center items-start gap-10">
-      <ChartPieUsers data={stats?.pieChartUsersData} />
-      <ChartLineProducts data={stats?.lineChartProductsData} />
-    </section>
+      {/* Charts Section */}
+      <section className="pt-28 px-10 flex flex-wrap justify-center items-start gap-10">
+        <ChartPieUsers data={stats?.pieChartUsersData} />
+        <ChartLineProducts data={stats?.lineChartProductsData} />
+      </section>
 
-    {/* Products Table */}
-    <section className="mt-14 px-10">
-      <h1 className="text-3xl font-bold mb-6 text-blue-300">Products</h1>
-      <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
-        <table className="min-w-full text-left text-gray-200">
-          <thead className="bg-[#1b2d4f]/70 text-blue-300">
-            <tr>
-              <th className="py-3 px-4">Title</th>
-              <th className="py-3 px-4">Description</th>
-              <th className="py-3 px-4">Price</th>
-              <th className="py-3 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr
-                key={product._id}
-                className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
-              >
-                <td className="py-3 px-4">
-                  {editProductId === product._id ? (
-                    <Input
-                      name="title"
-                      value={editData.title}
-                      onChange={handleChange}
-                      className="bg-[#333333] text-white"
-                    />
-                  ) : (
-                    product.title
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  {editProductId === product._id ? (
-                    <textarea
-                      name="content"
-                      value={editData.content}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full resize-none bg-[#333333] text-white p-2 rounded"
-                    />
-                  ) : (
-                    product.content || "—"
-                  )}
-                </td>
-                <td className="py-3 px-4 text-yellow-400 font-semibold">
-                  {editProductId === product._id ? (
-                    <Input
-                      type="number"
-                      name="price"
-                      value={editData.price}
-                      onChange={handleChange}
-                      className="bg-[#333333] text-white"
-                    />
-                  ) : (
-                    `$${product.price}`
-                  )}
-                </td>
-                <td className="py-3 px-4 text-right">
-                  {editProductId === product._id ? (
-                    <div className="flex justify-end gap-2">
-                      <Button onClick={() => handleUpdate(product._id)}>
-                        Save
-                      </Button>
-                      <Button variant="outline" onClick={handleCancelEdit}>
-                        Cancel
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex justify-end gap-3">
-                      <button
-                        onClick={() => handleEditClick(product)}
-                        className="text-blue-400 hover:text-blue-300 transition"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="text-red-500 hover:text-red-400 transition"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </td>
+      {/* Products Table */}
+      <section className="mt-14 px-10">
+        <h1 className="text-3xl font-bold mb-6 text-blue-300">Products</h1>
+        <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
+          <table className="min-w-full text-left text-gray-200">
+            <thead className="bg-[#1b2d4f]/70 text-blue-300">
+              <tr>
+                <th className="py-3 px-4">Title</th>
+                <th className="py-3 px-4">Description</th>
+                <th className="py-3 px-4">Price</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr
+                  key={product._id}
+                  className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
+                >
+                  <td className="py-3 px-4">
+                    {editProductId === product._id ? (
+                      <Input
+                        name="title"
+                        value={editData.title}
+                        onChange={handleChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      product.title
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {editProductId === product._id ? (
+                      <textarea
+                        name="content"
+                        value={editData.content}
+                        onChange={handleChange}
+                        rows={3}
+                        className="w-full resize-none bg-[#333333] text-white p-2 rounded"
+                      />
+                    ) : (
+                      product.content || "—"
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-yellow-400 font-semibold">
+                    {editProductId === product._id ? (
+                      <Input
+                        type="number"
+                        name="price"
+                        value={editData.price}
+                        onChange={handleChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      `$${product.price}`
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    {editProductId === product._id ? (
+                      <div className="flex justify-end gap-2">
+                        <Button onClick={() => handleUpdate(product._id)}>
+                          Save
+                        </Button>
+                        <Button variant="outline" onClick={handleCancelEdit}>
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => handleEditClick(product)}
+                          className="text-blue-400 hover:text-blue-300 transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product._id)}
+                          className="text-red-500 hover:text-red-400 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-    {/* Users Table */}
-    <section className="mt-16 px-10 mb-20">
-      <h1 className="text-3xl font-bold mb-6 text-blue-300">Buyers / Explorers</h1>
-      <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
-        <table className="min-w-full text-left text-gray-200">
-          <thead className="bg-[#1b2d4f]/70 text-blue-300">
-            <tr>
-              <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4">Email</th>
-              <th className="py-3 px-4">Role</th>
-              <th className="py-3 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {buyerUsers.map((buyer) => (
-              <tr
-                key={buyer._id}
-                className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
-              >
-                <td className="py-3 px-4">
-                  {editUserId === buyer._id ? (
-                    <Input
-                      name="name"
-                      value={editUserData.name}
-                      onChange={handleUserChange}
-                      className="bg-[#333333] text-white"
-                    />
-                  ) : (
-                    buyer.name
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  {editUserId === buyer._id ? (
-                    <Input
-                      name="email"
-                      value={editUserData.email}
-                      onChange={handleUserChange}
-                      className="bg-[#333333] text-white"
-                    />
-                  ) : (
-                    buyer.email
-                  )}
-                </td>
-                <td className="py-3 px-4">
-                  {editUserId === buyer._id ? (
-                    <Input
-                      name="role"
-                      value={editUserData.role}
-                      onChange={handleUserChange}
-                      className="bg-[#333333] text-white"
-                    />
-                  ) : (
-                    buyer.role
-                  )}
-                </td>
-                <td className="py-3 px-4 text-right">
-                  {editUserId === buyer._id ? (
-                    <div className="flex justify-end gap-2">
-                      <Button onClick={() => handleUserUpdate(buyer._id)}>
-                        Save
-                      </Button>
-                      <Button variant="outline" onClick={handleUserCancelEdit}>
-                        Cancel
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex justify-end gap-3">
-                      <button
-                        onClick={() => handleUserEditClick(buyer)}
-                        className="text-blue-400 hover:text-blue-300 transition"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleUserDelete(buyer._id)}
-                        className="text-red-500 hover:text-red-400 transition"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </td>
+      {/* Users Table */}
+      <section className="mt-16 px-10 mb-20">
+        <h1 className="text-3xl font-bold mb-6 text-blue-300">
+          Buyers / Explorers
+        </h1>
+        <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
+          <table className="min-w-full text-left text-gray-200">
+            <thead className="bg-[#1b2d4f]/70 text-blue-300">
+              <tr>
+                <th className="py-3 px-4">Name</th>
+                <th className="py-3 px-4">Email</th>
+                <th className="py-3 px-4">Role</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-);
+            </thead>
+            <tbody>
+              {buyerUsers.map((buyer) => (
+                <tr
+                  key={buyer._id}
+                  className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
+                >
+                  <td className="py-3 px-4">
+                    {editUserId === buyer._id ? (
+                      <Input
+                        name="name"
+                        value={editUserData.name}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      buyer.name
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {editUserId === buyer._id ? (
+                      <Input
+                        name="email"
+                        value={editUserData.email}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      buyer.email
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {editUserId === buyer._id ? (
+                      <Input
+                        name="role"
+                        value={editUserData.role}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      buyer.role
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    {editUserId === buyer._id ? (
+                      <div className="flex justify-end gap-2">
+                        <Button onClick={() => handleUserUpdate(buyer._id)}>
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={handleUserCancelEdit}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => handleUserEditClick(buyer)}
+                          className="text-blue-400 hover:text-blue-300 transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleUserDelete(buyer._id)}
+                          className="text-red-500 hover:text-red-400 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {/* Sellers Table */}
+      <section className="mt-16 px-10 mb-20">
+        <h1 className="text-3xl font-bold mb-6 text-blue-300">Sellers</h1>
+        <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
+          <table className="min-w-full text-left text-gray-200">
+            <thead className="bg-[#1b2d4f]/70 text-blue-300">
+              <tr>
+                <th className="py-3 px-4">Name</th>
+                <th className="py-3 px-4">Email</th>
+                <th className="py-3 px-4">Role</th>
+                <th className="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sellerUsers.map((seller) => (
+                <tr
+                  key={seller._id}
+                  className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
+                >
+                  <td className="py-3 px-4">
+                    {editUserId === seller._id ? (
+                      <Input
+                        name="name"
+                        value={editUserData.name}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      seller.name
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {editUserId === seller._id ? (
+                      <Input
+                        name="email"
+                        value={editUserData.email}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      seller.email
+                    )}
+                  </td>
+                  <td className="py-3 px-4">
+                    {editUserId === seller._id ? (
+                      <Input
+                        name="role"
+                        value={editUserData.role}
+                        onChange={handleUserChange}
+                        className="bg-[#333333] text-white"
+                      />
+                    ) : (
+                      seller.role
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    {editUserId === seller._id ? (
+                      <div className="flex justify-end gap-2">
+                        <Button onClick={() => handleSellerUpdate(seller._id)}>
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={handleUserCancelEdit}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => handleSellerEditClick(seller)}
+                          className="text-blue-400 hover:text-blue-300 transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleSellerDelete(seller._id)}
+                          className="text-red-500 hover:text-red-400 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
 }
