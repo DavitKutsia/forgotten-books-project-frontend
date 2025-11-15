@@ -4,12 +4,15 @@ import Cookies from "js-cookie";
 import Header from "../components/Header";
 import { toast } from "react-toastify";
 import "../index.css";
-import { use } from "react";
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const navigate = useNavigate();
   const token = Cookies.get("token") || localStorage.getItem("token");
 
@@ -24,8 +27,8 @@ export default function UserProfile() {
 
       const data = await res.json();
       setUser(data.user || data);
-      console.log(data)
-      console.log(data)
+      console.log(data);
+      console.log(data);
       setFormData({
         name: data.user?.name || data.name || "",
         email: data.user?.email || data.email || "",
@@ -38,9 +41,6 @@ export default function UserProfile() {
     }
   };
 
-  
-
-  
   const handleUploadAvatar = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -131,35 +131,35 @@ export default function UserProfile() {
 
               {/* Info */}
               <div className="mb-6">
-                <h1 className="text-4xl font-semibold text-blue-300 mb-1">{user?.name}</h1>
+                <h1 className="text-4xl font-semibold text-blue-300 mb-1">
+                  {user?.name}
+                </h1>
                 <p className="text-gray-400">{user?.email}</p>
-                <p className={`text-sm italic mt-1 ${
-                  user?.role === 'admin' ? 'text-red-400' : 'text-blue-400'
-                }`}>
-                  {user?.role === 'admin' ? 'Admin Account' : 'User Account'}
+                <p
+                  className={`text-sm italic mt-1 ${
+                    user?.role === "admin" ? "text-red-400" : "text-blue-400"
+                  }`}
+                >
+                  {user?.role === "admin" ? "Admin Account" : "User Account"}
                 </p>
               </div>
 
               {/* Edit Form */}
               <div className="w-full flex justify-center items-center mt-4">
                 {!editMode ? (
-<<<<<<< Updated upstream
                   <div className="flex flex-col gap-2 w-[20%] text-center">
-=======
-                  
->>>>>>> Stashed changes
-                  <button
-                    onClick={() => setEditMode(true)}
-                    className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
-                  >
-                    Edit Profile
-                  </button>
-                  <button
-                    onClick={() => navigate("/userproducts")}
-                    className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
-                  >
-                    View My Products
-                  </button>
+                    <button
+                      onClick={() => setEditMode(true)}
+                      className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
+                    >
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={() => navigate("/userproducts")}
+                      className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
+                    >
+                      View My Products
+                    </button>
                   </div>
                 ) : (
                   <form
@@ -167,32 +167,44 @@ export default function UserProfile() {
                     className="flex flex-col gap-5 mt-6 text-left w-full max-w-md mx-auto"
                   >
                     <div>
-                      <label className="block text-sm text-gray-300 mb-1">Name</label>
+                      <label className="block text-sm text-gray-300 mb-1">
+                        Name
+                      </label>
                       <input
                         type="text"
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
                         className="w-full p-2 rounded-md bg-[#0a192f] border border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm text-gray-300 mb-1">Email</label>
+                      <label className="block text-sm text-gray-300 mb-1">
+                        Email
+                      </label>
                       <input
                         type="email"
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
                         className="w-full p-2 rounded-md bg-[#0a192f] border border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm text-gray-300 mb-1">New Password</label>
+                      <label className="block text-sm text-gray-300 mb-1">
+                        New Password
+                      </label>
                       <input
                         type="password"
                         placeholder="Leave blank to keep old password"
                         value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
                         className="w-full p-2 rounded-md bg-[#0a192f] border border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
                       />
                     </div>
@@ -236,13 +248,3 @@ export default function UserProfile() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
