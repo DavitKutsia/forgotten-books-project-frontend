@@ -21,7 +21,6 @@ export function SignupForm({ role, ...props }) {
   const [errors, setErrors] = useState({});
   const [signupSuccess, setSignUpSuccess] = useState(false);
   const [data, setData] = useState(null);
-  const [endpoint, setEndpoint] = useState("");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -45,6 +44,7 @@ export function SignupForm({ role, ...props }) {
       [name]: "",
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -76,6 +76,7 @@ export function SignupForm({ role, ...props }) {
       setLoading(false);
     }
   };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[#121212]">
       {!signupSuccess && loading && (
@@ -95,21 +96,21 @@ export function SignupForm({ role, ...props }) {
           >
             <CardHeader>
               <CardTitle style={{ color: "rgba(255, 255, 255, 0.87)" }}>
-                {role === "seller"
-                  ? "Share/sell your creative story ideas as a"
-                  : "Find awesome inspirational ideas as an"}{" "}
+                {role === "admin"
+                  ? "Create an admin account to manage the platform"
+                  : "Join our community and start exploring"}{" "}
                 <span
                   className={`text-2xl  ${
-                    role === "seller" ? "text-[#FFD700]" : "text-[#4169E1]"
+                    role === "admin" ? "text-[#FF4444]" : "text-[#4169E1]"
                   } `}
                 >
-                  {role === "seller" ? "Seller" : "Explorer"}
+                  {role === "admin" ? "Admin" : "User"}
                 </span>
               </CardTitle>
               <CardDescription style={{ color: "	rgba(255, 255, 255, 0.60)" }}>
-                {role === "Explorer"
-                  ? "We just need some information to improve your experience on the app :)"
-                  : "We just need some information to confirm your identity (and improve your experience on the app :) )"}
+                {role === "admin"
+                  ? "Admin accounts have full platform management capabilities"
+                  : "We just need some information to get you started :)"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -183,7 +184,7 @@ export function SignupForm({ role, ...props }) {
                       <Button
                         onClick={() =>
                           handleGoogleLogin(
-                            role === "seller" ? "seller" : "buyer"
+                            role === "admin" ? "admin" : "user"
                           )
                         }
                         style={{

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,18 +18,52 @@ import { Input } from "@/components/ui/input";
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+useEffect(() => {
+  const token = searchParams.get('token');
+  const role = searchParams.get('role');
+
+  if (!token) return;
+
+  // Save token immediately
+  localStorage.setItem("token", token);
+
+  // Save role if backend sends it
+  if (role) {
+    localStorage.setItem("userRole", role);
+  }
+
+  // Fetch profile to get userId and confirm role
+  fetch("https://forgotten-books-project-backend.vercel.app/auth/profile", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(res => res.json())
+    .then(data => {
+      const user = data.user;
+
+      // Save userId from Google login
+      localStorage.setItem("userId", user.id || user._id);
+
+      // Redirect based on actual role
+      if (user.role === "admin") navigate("/adminpanel");
+      else navigate("/");
+    });
+}, [searchParams, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError("");
   };
-  const handleGoogleLogin = () => {
-    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google`;
+
+  const handleGoogleLogin = (userRole) => {
+    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google?role=${userRole}`;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -51,9 +85,37 @@ export function LoginForm({ className, ...props }) {
       } else {
         localStorage.setItem("token", data.token);
 
-        console.log(data.user);
+        try {
+          const profileRes = await fetch(
+            "https://forgotten-books-project-backend.vercel.app/auth/profile",
+            {
+              headers: {
+                Authorization: `Bearer ${data.token}`,
+              },
+            }
+          );
+
+          if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            const user = profileData.user;
+            
+            localStorage.setItem('userId', user.id || user._id);
+            localStorage.setItem('userRole', user.role);
+            
+            if (user.role === 'admin') {
+              navigate('/adminpanel');
+            } else {
+              navigate('/');
+            }
+          } else {
+            navigate('/');
+          }
+        } catch (profileErr) {
+          console.error('Profile fetch error:', profileErr);
+          navigate('/');
+        }
+
         setError("");
-        navigate("/");
       }
     } catch (err) {
       setError("Something went wrong. Try again.");
@@ -63,9 +125,9 @@ export function LoginForm({ className, ...props }) {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-[#121212]">
+    <div className="flex justify-center items-center min-h-screen w-full bg-[#121212]">
       <Card
-        className=" text-xl bg-[#121212]  w-[400px] shadow-lg"
+        className="text-xl bg-[#121212] mt-[10%]  w-[400px] shadow-lg"
         style={{
           color: "rgba(255, 255, 255, 0.60)",
           border: "2px solid rgba(255, 255, 255, 0.60)",
@@ -145,22 +207,44 @@ export function LoginForm({ className, ...props }) {
                     Sign up instead
                   </Button>
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => handleGoogleLogin()}
-                    style={{
-                      color: "#121212",
-                      backgroundColor: "rgba(255, 255, 255, 0.60)",
-                      cursor: "pointer",
-                      marginTop: "0.5rem",
-                    }}
-                  >
-                    Continue with Google
-                  </Button>
+                  <div className="mt-4 space-y-2">
+                    <div className="text-center text-sm" style={{ color: "rgba(255, 255, 255, 0.60)" }}>
+                      Continue with Google:
+                    </div>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleGoogleLogin("user")}
+                      style={{
+                        color: "#121212",
+                        backgroundColor: "rgba(66, 133, 244, 0.8)",
+                        cursor: "pointer",
+                        width: "100%",
+                      }}
+                    >
+                      🙋‍♀️ Login as User
+                    </Button>
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleGoogleLogin("admin")}
+                      style={{
+                        color: "white",
+                        backgroundColor: "rgba(220, 53, 69, 0.8)",
+                        cursor: "pointer",
+                        width: "100%",
+                        border: "1px solid rgba(220, 53, 69, 0.8)",
+                      }}
+                    >
+                      👩‍💼 Login as Admin
+                    </Button>
+                  </div>
+
                   <FieldDescription
                     style={{ color: "rgba(255,255,255,0.60)" }}
-                    className="text-center mt-2"
+                    className="text-center mt-4"
                   >
                     Forgot your password?{" "}
                     <span className="underline cursor-pointer">Reset here</span>

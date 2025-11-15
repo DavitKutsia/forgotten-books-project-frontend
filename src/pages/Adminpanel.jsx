@@ -22,7 +22,7 @@ export default function Adminpanel() {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const [buyerUsers, setBuyerUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [editProductId, setEditProductId] = useState(null);
   const [editData, setEditData] = useState({
     title: "",
@@ -36,15 +36,14 @@ export default function Adminpanel() {
     password: "",
     role: "",
   });
-  const [sellerUsers, setSellerUsers] = useState([]);
 
-  const handleUserEditClick = (buyer) => {
-    setEditUserId(buyer._id);
+  const handleUserEditClick = (user) => {
+    setEditUserId(user._id);
     setEditUserData({
-      name: buyer.name,
-      email: buyer.email,
-      password: buyer.password,
-      role: buyer.role,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      role: user.role,
     });
   };
 
@@ -58,12 +57,12 @@ export default function Adminpanel() {
     setEditUserData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUserUpdate = async (buyerId) => {
+  const handleUserUpdate = async (userId) => {
     const token = localStorage.getItem("token");
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
+        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -81,8 +80,8 @@ export default function Adminpanel() {
         return;
       }
 
-      setBuyerUsers((prev) =>
-        prev.map((u) => (u._id === buyerId ? { ...u, ...editUserData } : u))
+      setUsers((prev) =>
+        prev.map((u) => (u._id === userId ? { ...u, ...editUserData } : u))
       );
 
       handleUserCancelEdit();
@@ -91,14 +90,14 @@ export default function Adminpanel() {
     }
   };
 
-  const handleUserDelete = async (buyerId) => {
+  const handleUserDelete = async (userId) => {
     const token = localStorage.getItem("token");
 
     if (!window.confirm("Delete this user?")) return;
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/buyers/${buyerId}`,
+        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -110,14 +109,14 @@ export default function Adminpanel() {
         return;
       }
 
-      setBuyerUsers((prev) => prev.filter((u) => u._id !== buyerId));
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (err) {
       alert("Something went wrong");
     }
   };
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUserProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/SignUp");
@@ -160,7 +159,7 @@ export default function Adminpanel() {
       }
     };
 
-    fetchUsers();
+    fetchUserProfile();
   }, [navigate]);
 
   useEffect(() => {
@@ -196,7 +195,7 @@ export default function Adminpanel() {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchBuyerUsers = async () => {
+    const fetchUsers = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         navigate("/SignUp");
@@ -204,7 +203,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/buyers",
+          "https://forgotten-books-project-backend.vercel.app/users",
           {
             headers: {
               "Content-Type": "application/json",
@@ -214,13 +213,14 @@ export default function Adminpanel() {
         );
         if (!res.ok) throw new Error("Failed to fetch users");
         const data = await res.json();
-        setBuyerUsers(data);
+        setUsers(data);
       } catch (err) {
         setError(err.message);
       }
     };
-    fetchBuyerUsers();
+    fetchUsers();
   }, [navigate]);
+
   useEffect(() => {
     const fetchAllProducts = async () => {
       const token = localStorage.getItem("token");
@@ -238,7 +238,7 @@ export default function Adminpanel() {
             },
           }
         );
-        if (!res.ok) throw new Error("Failed to fetch users");
+        if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
         setProducts(data);
       } catch (err) {
@@ -327,90 +327,6 @@ export default function Adminpanel() {
       console.log(err);
     }
   };
-  const handleSellerEditClick = (seller) => {
-    setEditUserId(seller._id);
-    setEditUserData({
-      name: seller.name,
-      email: seller.email,
-      password: seller.password,
-      role: seller.role,
-    });
-  };
-
-  const handleSellerUpdate = async (sellerId) => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/sellers/${sellerId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(editUserData),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.message || "Failed to update seller");
-        return;
-      }
-      setSellerUsers((prev) =>
-        prev.map((s) => (s._id === sellerId ? { ...s, ...editUserData } : s))
-      );
-      handleUserCancelEdit();
-    } catch (err) {
-      alert("Something went wrong.");
-    }
-  };
-
-  const handleSellerDelete = async (sellerId) => {
-    const token = localStorage.getItem("token");
-    if (!window.confirm("Delete this seller?")) return;
-    try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/sellers/${sellerId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (!res.ok) {
-        alert("Failed to delete seller");
-        return;
-      }
-      setSellerUsers((prev) => prev.filter((s) => s._id !== sellerId));
-    } catch (err) {
-      alert("Something went wrong");
-    }
-  };
-  useEffect(() => {
-    const fetchSellerUsers = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/SignUp");
-        return;
-      }
-      try {
-        const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/sellers",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch sellers");
-        const data = await res.json();
-        setSellerUsers(data);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-    fetchSellerUsers();
-  }, [navigate]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -518,9 +434,7 @@ export default function Adminpanel() {
 
       {/* Users Table */}
       <section className="mt-16 px-10 mb-20">
-        <h1 className="text-3xl font-bold mb-6 text-blue-300">
-          Buyers / Explorers
-        </h1>
+        <h1 className="text-3xl font-bold mb-6 text-blue-300">Users</h1>
         <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
           <table className="min-w-full text-left text-gray-200">
             <thead className="bg-[#1b2d4f]/70 text-blue-300">
@@ -532,13 +446,13 @@ export default function Adminpanel() {
               </tr>
             </thead>
             <tbody>
-              {buyerUsers.map((buyer) => (
+              {users.map((user) => (
                 <tr
-                  key={buyer._id}
+                  key={user._id}
                   className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
                 >
                   <td className="py-3 px-4">
-                    {editUserId === buyer._id ? (
+                    {editUserId === user._id ? (
                       <Input
                         name="name"
                         value={editUserData.name}
@@ -546,11 +460,11 @@ export default function Adminpanel() {
                         className="bg-[#333333] text-white"
                       />
                     ) : (
-                      buyer.name
+                      user.name
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    {editUserId === buyer._id ? (
+                    {editUserId === user._id ? (
                       <Input
                         name="email"
                         value={editUserData.email}
@@ -558,25 +472,33 @@ export default function Adminpanel() {
                         className="bg-[#333333] text-white"
                       />
                     ) : (
-                      buyer.email
+                      user.email
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    {editUserId === buyer._id ? (
-                      <Input
+                    {editUserId === user._id ? (
+                      <select
                         name="role"
                         value={editUserData.role}
                         onChange={handleUserChange}
-                        className="bg-[#333333] text-white"
-                      />
+                        className="bg-[#333333] text-white p-2 rounded border border-gray-600"
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
                     ) : (
-                      buyer.role
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        user.role === 'admin' ? 'bg-red-500/20 text-red-300' :
+                        'bg-blue-500/20 text-blue-300'
+                      }`}>
+                        {user.role}
+                      </span>
                     )}
                   </td>
                   <td className="py-3 px-4 text-right">
-                    {editUserId === buyer._id ? (
+                    {editUserId === user._id ? (
                       <div className="flex justify-end gap-2">
-                        <Button onClick={() => handleUserUpdate(buyer._id)}>
+                        <Button onClick={() => handleUserUpdate(user._id)}>
                           Save
                         </Button>
                         <Button
@@ -589,104 +511,13 @@ export default function Adminpanel() {
                     ) : (
                       <div className="flex justify-end gap-3">
                         <button
-                          onClick={() => handleUserEditClick(buyer)}
+                          onClick={() => handleUserEditClick(user)}
                           className="text-blue-400 hover:text-blue-300 transition"
                         >
                           Edit
                         </button>
                         <button
-                          onClick={() => handleUserDelete(buyer._id)}
-                          className="text-red-500 hover:text-red-400 transition"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      {/* Sellers Table */}
-      <section className="mt-16 px-10 mb-20">
-        <h1 className="text-3xl font-bold mb-6 text-blue-300">Sellers</h1>
-        <div className="overflow-x-auto rounded-2xl border border-[#1b2d4f] bg-[#112240]/70 backdrop-blur-lg shadow-xl">
-          <table className="min-w-full text-left text-gray-200">
-            <thead className="bg-[#1b2d4f]/70 text-blue-300">
-              <tr>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Email</th>
-                <th className="py-3 px-4">Role</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sellerUsers.map((seller) => (
-                <tr
-                  key={seller._id}
-                  className="border-b border-[#1b2d4f] hover:bg-[#1e3a5f]/50 transition"
-                >
-                  <td className="py-3 px-4">
-                    {editUserId === seller._id ? (
-                      <Input
-                        name="name"
-                        value={editUserData.name}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white"
-                      />
-                    ) : (
-                      seller.name
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    {editUserId === seller._id ? (
-                      <Input
-                        name="email"
-                        value={editUserData.email}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white"
-                      />
-                    ) : (
-                      seller.email
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    {editUserId === seller._id ? (
-                      <Input
-                        name="role"
-                        value={editUserData.role}
-                        onChange={handleUserChange}
-                        className="bg-[#333333] text-white"
-                      />
-                    ) : (
-                      seller.role
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    {editUserId === seller._id ? (
-                      <div className="flex justify-end gap-2">
-                        <Button onClick={() => handleSellerUpdate(seller._id)}>
-                          Save
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={handleUserCancelEdit}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex justify-end gap-3">
-                        <button
-                          onClick={() => handleSellerEditClick(seller)}
-                          className="text-blue-400 hover:text-blue-300 transition"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleSellerDelete(seller._id)}
+                          onClick={() => handleUserDelete(user._id)}
                           className="text-red-500 hover:text-red-400 transition"
                         >
                           Delete

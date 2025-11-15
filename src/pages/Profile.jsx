@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import { toast } from "react-toastify";
 import "../index.css";
 
-export default function SellerProfile() {
+export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
@@ -44,7 +44,7 @@ export default function SellerProfile() {
 
     try {
       const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/sellers/upload-avatar",
+        "https://forgotten-books-project-backend.vercel.app/users/upload-avatar",
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -66,7 +66,7 @@ export default function SellerProfile() {
     e.preventDefault();
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/sellers/${user._id}`,
+        `https://forgotten-books-project-backend.vercel.app/users/${user._id}`,
         {
           method: "PUT",
           headers: {
@@ -128,18 +128,30 @@ export default function SellerProfile() {
               <div className="mb-6">
                 <h1 className="text-4xl font-semibold text-blue-300 mb-1">{user?.name}</h1>
                 <p className="text-gray-400">{user?.email}</p>
-                <p className="text-sm text-blue-500 italic mt-1">Seller Account</p>
+                <p className={`text-sm italic mt-1 ${
+                  user?.role === 'admin' ? 'text-red-400' : 'text-blue-400'
+                }`}>
+                  {user?.role === 'admin' ? 'Admin Account' : 'User Account'}
+                </p>
               </div>
 
               {/* Edit Form */}
-              <div className="w-full mt-4">
+              <div className="w-full flex justify-center items-center mt-4">
                 {!editMode ? (
+                  <div className="flex flex-col gap-2 w-[20%] text-center">
                   <button
                     onClick={() => setEditMode(true)}
                     className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
                   >
                     Edit Profile
                   </button>
+                  <button
+                    onClick={() => navigate("/userproducts")}
+                    className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
+                  >
+                    View My Products
+                  </button>
+                  </div>
                 ) : (
                   <form
                     onSubmit={handleUpdateProfile}
@@ -215,3 +227,13 @@ export default function SellerProfile() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+

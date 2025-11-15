@@ -26,21 +26,22 @@ export default function UserProducts() {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
-
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError("");
       try {
         const res = await fetch(
-          `https://forgotten-books-project-backend.vercel.app/sellers/${userId}/products`,
+          `https://forgotten-books-project-backend.vercel.app/auth/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         const data = await res.json();
+          console.log(data)
         if (!res.ok) setError(data.message || "Failed to fetch products");
-        else setProducts(data || []);
+      
+        else setProducts(data.products || []);
       } catch (err) {
         setError("Something went wrong. Try again.");
       } finally {
@@ -97,35 +98,34 @@ export default function UserProducts() {
     }
   };
 
-const handleDelete = async (productId) => {
-  if (!window.confirm("Are you sure you want to delete this product?")) return;
+  const handleDelete = async (productId) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
 
-  try {
-    const res = await fetch(
-      `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
-      {
-        method: "DELETE",
-        headers: { 
-          Authorization: `Bearer ${token}` 
-        },
-      }
-    );
-
-    let data;
     try {
-      data = await res.json();
+      const res = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        {
+          method: "DELETE",
+          headers: { 
+            Authorization: `Bearer ${token}` 
+          },
+        }
+      );
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        data = null; 
+      }
+
+      if (!res.ok) setError(data?.message || "Failed to delete product");
+      else setProducts((prev) => prev.filter((p) => p._id !== productId));
     } catch (err) {
-      data = null; 
+      setError("Something went wrong. Try again.");
+      console.log(err);
     }
-
-    if (!res.ok) setError(data?.message || "Failed to delete product");
-    else setProducts((prev) => prev.filter((p) => p._id !== productId));
-  } catch (err) {
-    setError("Something went wrong. Try again.");
-    console.log(err);
-  }
-};
-
+  };
 
   return (
     <div className="relative w-full min-h-screen bg-[#121212] text-white">
@@ -191,18 +191,25 @@ const handleDelete = async (productId) => {
                     <p className="mt-2 text-yellow-400 font-semibold">
                       Price: ${product.price}
                     </p>
-                    <div className="flex gap-2 mt-4">
-                      <Button onClick={() => handleEditClick(product)}>
-                        Edit
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(product._id)}
-                        variant="outline"
-                        className="text-red-500 border-red-500"
-                      >
-                        Delete
-                      </Button>
-                    </div>
+                  <div className="flex gap-2 mt-4">
+                    <Button onClick={() => handleEditClick(product)}>
+                      Edit
+                    </Button>
+                    <Button
+                      onClick={() => navigate(`/product-matches/${product._id}`)}
+                      variant="outline"
+                      className="border-green-500 text-green-400 hover:bg-green-500/10"
+                    >
+                      View Matches
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(product._id)}
+                      variant="outline"
+                      className="text-red-500 border-red-500"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                   </>
                 )}
               </CardContent>
