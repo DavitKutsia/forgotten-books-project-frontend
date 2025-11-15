@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import Header from "../components/Header";
 import { toast } from "react-toastify";
 import "../index.css";
+import { use } from "react";
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
@@ -23,6 +24,7 @@ export default function UserProfile() {
 
       const data = await res.json();
       setUser(data.user || data);
+      console.log(data)
       setFormData({
         name: data.user?.name || data.name || "",
         email: data.user?.email || data.email || "",
@@ -35,6 +37,7 @@ export default function UserProfile() {
     }
   };
 
+  
   const handleUploadAvatar = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -96,7 +99,6 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-[#0a192f] text-gray-100 flex flex-col">
-      {/* Header fixed at top */}
       <Header />
 
       <main className="flex-grow flex justify-center items-center px-4 pt-28 pb-16">
@@ -138,7 +140,11 @@ export default function UserProfile() {
               {/* Edit Form */}
               <div className="w-full flex justify-center items-center mt-4">
                 {!editMode ? (
+<<<<<<< Updated upstream
                   <div className="flex flex-col gap-2 w-[20%] text-center">
+=======
+                  
+>>>>>>> Stashed changes
                   <button
                     onClick={() => setEditMode(true)}
                     className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
