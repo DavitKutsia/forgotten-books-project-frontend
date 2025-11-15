@@ -13,43 +13,21 @@ export default function Signup() {
       <Header />
       <div className="flex absolute bg-[#121212] min-h-screen w-full   flex-col justify-center items-center">
         <Tabs
-          defaultValue="buyer"
+          defaultValue="user"
           className="w-[300px] mt-[100px] lg:w-[500px] "
         >
           <div className="flex flex-col gap-[5%] w-full">
             {" "}
-            <TabsList
-              style={{ border: "2px solid rgba(255, 255, 255, 0.6)" }}
-              className="bg-transparent border-2  "
-            >
-              <TabsTrigger style={{ color: color }} value="seller">
-                Seller
-              </TabsTrigger>
-              <TabsTrigger style={{ color: secondColor }} value="buyer">
-                Explorer
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="seller">
-              <motion.div
-                key="seller"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-              >
-                <SignupForm role="seller" />
-              </motion.div>
-            </TabsContent>
-            <TabsContent value="buyer">
+            <TabsContent value="user">
               {" "}
               <motion.div
-                key="buyer"
+                key="user"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <SignupForm role="buyer" />
+                <SignupForm role="user" />
               </motion.div>
             </TabsContent>
           </div>
