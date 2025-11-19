@@ -3,17 +3,53 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import "../App.css";
-
+import { Bell } from "lucide-react";
 export default function Header() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [profileMenu, setProfileMenu] = useState(false);
+  const [matches, setMatches] = useState([]);
+  const [notificationTab, setNotificationTab] = useState(false);
+
   const logOut = () => {
     localStorage.removeItem("token");
     setUser(null);
     navigate("/SignIn");
   };
+
+  useEffect(() => {
+    const handleNotifications = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(
+          "https://forgotten-books-project-backend.vercel.app/match/",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.text();
+    
+          if (res.ok) {
+            setMatches(data);
+          } else {
+            setMatches(null);
+          }
+        } catch (err) {
+          console.error("Response was not JSON.");
+        }
+     
+    };
+
+    handleNotifications();
+  }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
@@ -53,7 +89,7 @@ export default function Header() {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <nav className="fixed w-full z-30 bg-gray-600/60 backdrop-blur-md text-gray-300 px-4 sm:px-10 py-5 flex justify-between items-center">
         <h1
           onClick={() => navigate("/")}
@@ -92,16 +128,63 @@ export default function Header() {
         )}
         {user && !mobileNavOpen ? (
           <>
-            <h1
-              onClick={() => {
-                setProfileMenu((prev) => !prev);
-              }}
-              className="text-2xl rounded-2xl relative border-2 p-2 border-[#121212] font-bold cursor-pointer"
-            >
-              {user.name} 👋
-            </h1>{" "}
+            <div className="flex gap-2 justify-center items-center">
+              <h1
+                onClick={() => {
+                  setProfileMenu((prev) => !prev);
+                }}
+                className="text-2xl rounded-2xl relative border-2 p-2 border-[#121212] font-bold cursor-pointer"
+              >
+                {user.name} 👋
+              </h1>{" "}
+              <div className="relative ml-4">
+                <button
+                  onClick={() => {
+                    setNotificationTab((prev) => !prev);
+                  }}
+                  className="relative p-2 rounded-full hover:bg-gray-500 transition"
+                >
+                  <Bell size={24} className="text-white" />
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                    3
+                  </span>
+                </button>
+                {notificationTab && (
+                  <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10">
+                    <div className="p-4">
+                      <h2 className="text-lg font-semibold text-white mb-2">
+                        Notifications
+                      </h2>
+                      {matches.length === 0 ? (
+                        <p className="text-gray-400">No new notifications</p>
+                      ) : (
+                        <ul className="space-y-2 max-h-48 overflow-y-auto">
+                          {matches.map((match) => (
+                            <li
+                              key={match.matchId}
+                              className="p-2 bg-gray-700 rounded hover:bg-gray-600 transition"
+                            >
+                              <p className="text-white">
+                                New match from{" "}
+                                <span className="font-bold">
+                                  {match.matcher?.name ||
+                                    match.matcher?.username ||
+                                    "Anonymous"}
+                                </span>
+                              </p>
+                              <p className="text-gray-400 text-sm">
+                                {new Date(match.createdAt).toLocaleString()}
+                              </p>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             {profileMenu && (
-              
               <div className="right-[4%]  top-[90%] flex flex-col gap-2   rounded-2xl p-2 bg-gray-600/60 backdrop-blur-md   absolute">
                 <button
                   onClick={() => navigate("/profile")}
@@ -132,9 +215,10 @@ export default function Header() {
                   </div>
                 )}
                 {user.role === "admin" && (
-                  <button 
-                  onClick={() => navigate("/adminpanel")}
-                  className="p-2 text-yellow-500 bg-[#121212] cursor-pointer  border-black border-2 text-center text-xl  rounded-2xl">
+                  <button
+                    onClick={() => navigate("/adminpanel")}
+                    className="p-2 text-yellow-500 bg-[#121212] cursor-pointer  border-black border-2 text-center text-xl  rounded-2xl"
+                  >
                     AdminPanel
                   </button>
                 )}
@@ -258,4 +342,3 @@ export default function Header() {
     </div>
   );
 }
-

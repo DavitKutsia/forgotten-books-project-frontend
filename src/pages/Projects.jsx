@@ -56,87 +56,6 @@ export default function Projects() {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
-  const generateFakeProducts = () => {
-    const fakeProducts = [
-      {
-        _id: "fake1",
-        title: "The Midnight Chronicles",
-        content:
-          "A thrilling fantasy adventure set in a world where magic awakens only at midnight. Follow Luna as she discovers her hidden powers and battles ancient demons.",
-        price: 12.99,
-        user: { _id: "user1", name: "Alexandra Stone" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake2",
-        title: "Code & Coffee",
-        content:
-          "A programmer's journey through Silicon Valley startups. A humorous and insightful look into the world of tech entrepreneurship and late-night coding sessions.",
-        price: 8.5,
-        user: { _id: "user2", name: "Marcus Chen" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake3",
-        title: "Ocean's Whisper",
-        content:
-          "A marine biologist discovers an underwater civilization. Part science fiction, part environmental thriller. Explores themes of conservation and discovery.",
-        price: 15.75,
-        user: { _id: "user3", name: "Dr. Sarah Martinez" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake4",
-        title: "The Last Bookstore",
-        content:
-          "In a digital world, one woman fights to save physical books. A dystopian tale about the importance of preserving knowledge and human connection.",
-        price: 11.25,
-        user: { _id: "user4", name: "Elena Rodriguez" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake5",
-        title: "Quantum Hearts",
-        content:
-          "A love story spanning multiple dimensions. When a physicist discovers parallel universes, she must choose between infinite possibilities and true love.",
-        price: 13.99,
-        user: { _id: "user5", name: "Dr. James Kim" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake6",
-        title: "Street Art Revolution",
-        content:
-          "The underground world of urban artists fighting gentrification through their art. A gritty tale of creativity, community, and resistance.",
-        price: 9.99,
-        user: { _id: "user6", name: "Rico Vasquez" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake7",
-        title: "The Memory Thief",
-        content:
-          "In a world where memories can be stolen and sold, a detective must recover her own past. A noir thriller with sci-fi elements.",
-        price: 14.5,
-        user: { _id: "user7", name: "Detective Morgan Lee" },
-        createdAt: new Date().toISOString(),
-      },
-      {
-        _id: "fake8",
-        title: "Culinary Time Travel",
-        content:
-          "A chef discovers recipes that transport her through time. Each dish tells a story from a different era, mixing history with gastronomy.",
-        price: 10.75,
-        user: { _id: "user8", name: "Chef Isabella Rossi" },
-        createdAt: new Date().toISOString(),
-      },
-    ];
-    setProducts(fakeProducts);
-    setCurrentIndex(0);
-    setLoading(false);
-    addToast("Test products loaded! Start swiping to test.", "success");
-  };
-
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -161,10 +80,8 @@ export default function Projects() {
       );
       setProducts(otherProducts);
 
-      if (otherProducts.length > 0) {
-        addToast(`Loaded ${otherProducts.length} products from API`, "success");
-      } else {
-        addToast("No products available from API", "info");
+      if (otherProducts.length < 0) {
+        addToast(`No products available`, "success");
       }
     } catch (err) {
       setError("Failed to load products");
@@ -178,7 +95,7 @@ export default function Projects() {
   const createMatch = async (productId) => {
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/matches/${productId}`,
+        `https://forgotten-books-project-backend.vercel.app/match/${productId}`,
         {
           method: "POST",
           headers: {
@@ -193,7 +110,7 @@ export default function Projects() {
       if (res.ok) {
         console.log("Match created:", data.matchId);
         addToast(
-          `✨ Match created successfully! ID: ${data.matchId.slice(0, 8)}...`,
+          `✨ Match created successfully!`,
           "success"
         );
         return { success: true, data };
@@ -312,25 +229,8 @@ export default function Projects() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#121212] text-white">
-        <Header />
-        <div className="flex flex-col items-center justify-center h-screen gap-4">
-          <p className="text-red-500">{error}</p>
-          <Button
-            onClick={generateFakeProducts}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            Use Fake Products for Testing
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#121212] text-white">
+    <div className="min-h-screen w-full bg-[#121212] text-white">
       <Header />
 
       {/* Toast Notifications */}
@@ -345,29 +245,16 @@ export default function Projects() {
         ))}
       </div>
 
-      <div className="pt-32 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Discover Products</h1>
-          <Button
-            onClick={generateFakeProducts}
-            variant="outline"
-            className="border-purple-500 text-purple-400 hover:bg-purple-500/10"
-          >
-            Load Test Data
-          </Button>
-        </div>
-
-        <div className="flex justify-center items-center min-h-[600px]">
+      <div className="min-h-screen w-full mx-auto pt-40 p-4">
+        <div className="flex justify-center items-center ">
           {hasMoreProducts ? (
             <div className="relative w-full max-w-md">
-              {/* Swipe Instructions */}
               <div className="text-center mb-4">
                 <p className="text-gray-400">
                   ← Swipe left to pass • Swipe right to match →
                 </p>
               </div>
 
-              {/* Product Card */}
               <Card
                 ref={cardRef}
                 className={`
@@ -421,7 +308,6 @@ export default function Projects() {
                 </CardContent>
               </Card>
 
-              {/* Swipe Direction Indicators */}
               {swipeDirection && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div
@@ -439,7 +325,6 @@ export default function Projects() {
                 </div>
               )}
 
-              {/* Action Buttons */}
               <div className="flex justify-center gap-8 mt-8">
                 <button
                   onClick={() => handleSwipe("left")}
@@ -471,12 +356,6 @@ export default function Projects() {
                 >
                   Refresh from API
                 </button>
-                <Button
-                  onClick={generateFakeProducts}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  Load Test Data
-                </Button>
               </div>
             </div>
           )}
