@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-export default function UserProducts() {
+export default function UserProducts({variable}) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,27 +23,65 @@ export default function UserProducts() {
     price: "",
   });
 
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
 
+  const token = localStorage.getItem("token");
+  const [userId, setUserId] = useState("");
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProfile = async () => {
       setLoading(true);
       setError("");
+
       try {
         const res = await fetch(
-          `https://forgotten-books-project-backend.vercel.app/auth/profile`,
+          "https://forgotten-books-project-backend.vercel.app/auth/profile",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         const data = await res.json();
-          console.log(data)
-        if (!res.ok) setError(data.message || "Failed to fetch products");
-      
-        else setProducts(data.products || []);
-      } catch (err) {
-        setError("Something went wrong. Try again.");
+        console.log("PROFILE:", data);
+
+        if (!res.ok) {
+          setError(data.message || "Failed to fetch profile");
+        } else {
+          setUserId(data.user?._id);
+        }
+      } catch {
+        setError("Something went wrong while loading profile.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [token]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await fetch(
+          `https://forgotten-books-project-backend.vercel.app/users/${userId}/products`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const data = await res.json();
+        console.log("PRODUCTS:", data);
+
+        if (!res.ok) {
+          setError(data.message || "Failed to fetch products");
+        } else {
+          setProducts(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        setError("Something went wrong while loading products.");
       } finally {
         setLoading(false);
       }
@@ -99,15 +137,16 @@ export default function UserProducts() {
   };
 
   const handleDelete = async (productId) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
 
     try {
       const res = await fetch(
         `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
         {
           method: "DELETE",
-          headers: { 
-            Authorization: `Bearer ${token}` 
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -116,7 +155,7 @@ export default function UserProducts() {
       try {
         data = await res.json();
       } catch (err) {
-        data = null; 
+        data = null;
       }
 
       if (!res.ok) setError(data?.message || "Failed to delete product");
@@ -191,25 +230,25 @@ export default function UserProducts() {
                     <p className="mt-2 text-yellow-400 font-semibold">
                       Price: ${product.price}
                     </p>
-                  <div className="flex gap-2 mt-4">
-                    <Button onClick={() => handleEditClick(product)}>
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() => navigate(`/product-matches/${product._id}`)}
-                      variant="outline"
-                      className="border-green-500 text-green-400 hover:bg-green-500/10"
-                    >
-                      View Matches
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(product._id)}
-                      variant="outline"
-                      className="text-red-500 border-red-500"
-                    >
-                      Delete
-                    </Button>
-                  </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button onClick={() => handleEditClick(product)}>
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => navigate(`/productmatches/${product._id}`)}
+                        variant="outline"
+                        className="border-green-500 text-green-400 hover:bg-green-500/10"
+                      >
+                        View Matches
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(product._id)}
+                        variant="outline"
+                        className="text-red-500 border-red-500"
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </>
                 )}
               </CardContent>

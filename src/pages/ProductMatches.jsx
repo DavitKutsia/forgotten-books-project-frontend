@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import { useParams, useNavigate } from "react-router-dom";
 
 export default function ProductMatches() {
-  const { productId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [product, setProduct] = useState(null);
@@ -14,19 +14,20 @@ export default function ProductMatches() {
   const [hasSubscription, setHasSubscription] = useState(true);
   const [matchCount, setMatchCount] = useState(0);
 
+  
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (productId) {
+    if (id) {
       fetchMatches();
       fetchProduct();
     }
-  }, [productId]);
+  }, [id]);
 
   const fetchProduct = async () => {
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `https://forgotten-books-project-backend.vercel.app/products/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,7 +48,7 @@ export default function ProductMatches() {
     try {
       setLoading(true);
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/matches/${productId}`,
+        `https://forgotten-books-project-backend.vercel.app/match/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -68,7 +69,6 @@ export default function ProductMatches() {
 
       const data = await res.json();
       
-      // Check if user has subscription
       if (data.message && data.message.includes("subscription")) {
         setHasSubscription(false);
         setMatchCount(data.count);

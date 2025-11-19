@@ -20,8 +20,9 @@ import Header from "../components/Header";
 export default function CreateProduct() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    matchId: "",
-    productId: "",
+    title: "",
+    content: "",
+    price: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,14 +43,12 @@ export default function CreateProduct() {
 
     try {
       const token = localStorage.getItem("token");
-      
-      const matchData = {
-        matchId: formData.matchId,
-        productId: formData.productId,
-      };
 
-      console.log("Sending match data:", matchData);
-      console.log("Token:", token ? "Token exists" : "No token");
+      const productData = {
+        title: formData.title,
+        content: formData.content,
+        price: Number(formData.price)
+      };
 
       const res = await fetch(
         "https://forgotten-books-project-backend.vercel.app/products",
@@ -59,25 +58,20 @@ export default function CreateProduct() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(matchData),
+          body: JSON.stringify(productData),
         }
       );
 
       const data = await res.json();
-      console.log("Backend response:", data);
-      console.log("Response status:", res.status);
 
       if (!res.ok) {
-        setError(data.message || "Failed to create match");
+        setError(data.message || "Failed to create product");
       } else {
-        setSuccess("Match created successfully!");
-        setFormData({ matchId: "", productId: "" });
-        setTimeout(() => {
-          navigate("/userproducts");
-        }, 1500);
+        setSuccess("Product created successfully!");
+        setFormData({ title: "", content: "", price: "" });
+        setTimeout(() => navigate("/userproducts"), 1500);
       }
     } catch (err) {
-      console.error("Request error:", err);
       setError("Something went wrong. Try again.");
     } finally {
       setLoading(false);
@@ -85,81 +79,73 @@ export default function CreateProduct() {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-[#121212]">
+    <div className="min-h-screen bg-[#0A0F1F] text-white flex flex-col items-center p-6">
       <Header />
-      <div className="pt-32 p-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8">Create New Match</h1>
-          
-          <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)]">
-            <CardContent className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <FieldLabel className="text-white mb-2">Match ID</FieldLabel>
-                  <Input
-                    placeholder="Enter unique match ID"
-                    name="matchId"
-                    value={formData.matchId}
-                    onChange={handleChange}
-                    className="bg-[#333333] border-[1.5px] border-[rgba(255,255,255,0.3)] text-white"
-                    required
-                  />
-                  <FieldDescription className="text-gray-400 text-sm mt-1">
-                    Must be unique across all matches
-                  </FieldDescription>
-                </div>
 
-                <div>
-                  <FieldLabel className="text-white mb-2">Product ID</FieldLabel>
-                  <Input
-                    placeholder="Enter product ID to match with"
-                    name="productId"
-                    value={formData.productId}
-                    onChange={handleChange}
-                    className="bg-[#333333] border-[1.5px] border-[rgba(255,255,255,0.3)] text-white"
-                    required
-                  />
-                  <FieldDescription className="text-gray-400 text-sm mt-1">
-                    The ID of the product you want to create a match for
-                  </FieldDescription>
-                </div>
+      <Card className="w-full max-w-xl bg-[#11182D] border border-[#1E2A47] shadow-xl rounded-2xl mt-[10%]">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-blue-300">
+            Create Product
+          </CardTitle>
+          <CardDescription className="text-blue-200 opacity-70">
+            Add a new product :)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <FieldGroup>
+              <Field>
+                <FieldLabel className="text-blue-300">Title</FieldLabel>
+                <Input
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Enter title"
+                  className="bg-[#0F162B] text-white border-[#2A3B67] focus:ring-blue-400"
+                />
+              </Field>
 
-                {error && (
-                  <div className="text-red-500 bg-red-500/10 border border-red-500/20 rounded p-3">
-                    {error}
-                  </div>
-                )}
-                
-                {success && (
-                  <div className="text-green-400 bg-green-500/10 border border-green-500/20 rounded p-3">
-                    {success}
-                  </div>
-                )}
+              <Field>
+                <FieldLabel className="text-blue-300">Description</FieldLabel>
+                <Input
+                  name="content"
+                  value={formData.content}
+                  onChange={handleChange}
+                  placeholder="Enter description"
+                  className="bg-[#0F162B] text-white border-[#2A3B67] focus:ring-blue-400"
+                />
+              </Field>
 
-                <div className="flex gap-4">
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={loading}
-                  >
-                    {loading ? "Creating Match..." : "Create Match"}
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
-                    onClick={() => navigate("/userproducts")}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              <Field>
+                <FieldLabel className="text-blue-300">Price</FieldLabel>
+                <Input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="Enter price"
+                  className="bg-[#0F162B] text-white border-[#2A3B67] focus:ring-blue-400"
+                />
+              </Field>
+            </FieldGroup>
+
+            {error && (
+              <p className="text-red-400 text-sm font-medium">{error}</p>
+            )}
+            {success && (
+              <p className="text-green-400 text-sm font-medium">{success}</p>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl py-2 mt-4"
+            >
+              {loading ? "Creating..." : "Create Product"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
