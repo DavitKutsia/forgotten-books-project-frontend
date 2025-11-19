@@ -14,7 +14,6 @@ export default function ProductMatches() {
   const [hasSubscription, setHasSubscription] = useState(true);
   const [matchCount, setMatchCount] = useState(0);
 
-  
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -68,7 +67,7 @@ export default function ProductMatches() {
       }
 
       const data = await res.json();
-      
+
       if (data.message && data.message.includes("subscription")) {
         setHasSubscription(false);
         setMatchCount(data.count);
@@ -176,10 +175,11 @@ export default function ProductMatches() {
               <div className="text-center py-8">
                 <div className="text-6xl mb-4">📊</div>
                 <h3 className="text-2xl font-bold mb-2">
-                  You have {matchCount} match{matchCount !== 1 ? 'es' : ''}!
+                  You have {matchCount} match{matchCount !== 1 ? "es" : ""}!
                 </h3>
                 <p className="text-gray-300 mb-6">
-                  Upgrade your subscription to see who matched with your product and connect with potential buyers.
+                  Upgrade your subscription to see who matched with your product
+                  and connect with potential buyers.
                 </p>
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-3">
                   Upgrade to Premium
@@ -193,14 +193,15 @@ export default function ProductMatches() {
             <h2 className="text-xl font-bold mb-6">
               People Who Matched ({matchCount})
             </h2>
-            
+
             {matches.length === 0 ? (
               <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)]">
                 <CardContent className="text-center py-12">
                   <div className="text-6xl mb-4">🔍</div>
                   <h3 className="text-xl font-bold mb-2">No matches yet</h3>
                   <p className="text-gray-400">
-                    When people swipe right on your product, they'll appear here.
+                    When people swipe right on your product, they'll appear
+                    here.
                   </p>
                 </CardContent>
               </Card>
@@ -214,7 +215,9 @@ export default function ProductMatches() {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-white text-lg">
-                          {match.matcher?.name || match.matcher?.username || "Anonymous"}
+                          {match.matcher?.name ||
+                            match.matcher?.username ||
+                            "Anonymous"}
                         </CardTitle>
                         {match.respondedByOwner ? (
                           <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-sm">
@@ -235,7 +238,7 @@ export default function ProductMatches() {
                             {match.matcher?.email || "Hidden"}
                           </p>
                         </div>
-                        
+
                         <div>
                           <p className="text-gray-400 text-sm">Matched on</p>
                           <p className="text-white">
@@ -263,17 +266,6 @@ export default function ProductMatches() {
             )}
           </div>
         )}
-
-        {/* Refresh Button */}
-        <div className="text-center mt-8">
-          <Button
-            onClick={fetchMatches}
-            variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-800"
-          >
-            🔄 Refresh Matches
-          </Button>
-        </div>
       </div>
     </div>
   );

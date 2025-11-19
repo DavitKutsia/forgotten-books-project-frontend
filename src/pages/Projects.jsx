@@ -76,10 +76,10 @@ export default function Projects() {
 
       const data = await res.json();
       const otherProducts = data.filter(
-        (product) => product.user?._id !== currentUserId
+        (product) => product.user?._id !== currentUserId && product._id !== matchedId
       );
       setProducts(otherProducts);
-
+      
       if (otherProducts.length < 0) {
         addToast(`No products available`, "success");
       }
@@ -109,10 +109,7 @@ export default function Projects() {
 
       if (res.ok) {
         console.log("Match created:", data.matchId);
-        addToast(
-          `✨ Match created successfully!`,
-          "success"
-        );
+        addToast(`✨ Match created successfully!`, "success");
         return { success: true, data };
       } else {
         console.log("Match creation failed:", data.message);
@@ -346,17 +343,7 @@ export default function Projects() {
               <p className="text-gray-400 mb-8">
                 You've seen all available products.
               </p>
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={() => {
-                    setCurrentIndex(0);
-                    fetchProducts();
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors"
-                >
-                  Refresh from API
-                </button>
-              </div>
+              <div className="flex gap-4 justify-center"></div>
             </div>
           )}
         </div>
