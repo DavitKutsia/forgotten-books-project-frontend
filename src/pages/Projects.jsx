@@ -76,10 +76,10 @@ export default function Projects() {
 
       const data = await res.json();
       const otherProducts = data.filter(
-        (product) => product.user?._id !== currentUserId && product._id !== matchedId
+        (product) => product.user?._id !== currentUserId
       );
       setProducts(otherProducts);
-      
+
       if (otherProducts.length < 0) {
         addToast(`No products available`, "success");
       }
