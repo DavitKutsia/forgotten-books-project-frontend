@@ -100,6 +100,34 @@ export default function UserProfile() {
     else getUserProfile();
   }, [token, navigate]);
 
+  const handleSubscribe = async () => {
+    try {
+      const res = await fetch(
+        "https://forgotten-books-project-backend.vercel.app/stripe/subscriptions/create-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            priceId: "price_123", // replace with your real Stripe Price ID
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data.message || "Failed to start subscription");
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Subscription failed");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a192f] text-gray-100 flex flex-col">
       <Header />
@@ -135,6 +163,10 @@ export default function UserProfile() {
                   {user?.name}
                 </h1>
                 <p className="text-gray-400">{user?.email}</p>
+                <p className="text-green-400 text-sm mt-1">
+                  {user?.subscriptionActive ? "Premium User" : "Free User"}
+                </p>
+
                 <p
                   className={`text-sm italic mt-1 ${
                     user?.role === "admin" ? "text-red-400" : "text-blue-400"
@@ -147,18 +179,26 @@ export default function UserProfile() {
               {/* Edit Form */}
               <div className="w-full flex justify-center items-center mt-4">
                 {!editMode ? (
-                  <div className="flex flex-col gap-2 w-[20%] text-center">
+                  <div className="flex flex-col gap-3 w-[30%] text-center">
                     <button
                       onClick={() => setEditMode(true)}
                       className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
                     >
                       Edit Profile
                     </button>
+
                     <button
                       onClick={() => navigate("/userproducts")}
                       className="px-6 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl shadow-md hover:shadow-blue-600/40 text-white transition"
                     >
                       View My Products
+                    </button>
+
+                    <button
+                      onClick={handleSubscribe}
+                      className="px-6 py-2 bg-green-700 hover:bg-green-600 rounded-xl shadow-md hover:shadow-green-600/40 text-white transition"
+                    >
+                      Subscribe (Premium)
                     </button>
                   </div>
                 ) : (

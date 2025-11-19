@@ -61,7 +61,7 @@ export default function Homepage() {
 
       <section className="flex flex-col items-center justify-center text-center pt-40 pb-20 px-4">
         <h1 className="text-4xl sm:text-5xl font-bold mb-8 text-white">
-          Discover and Share Forgotten Projects
+          Discover and Collaborate on Forgotten Projects
         </h1>
         <div className="flex flex-wrap gap-6 justify-center">
           <button
