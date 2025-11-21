@@ -18,37 +18,38 @@ export default function Header() {
     navigate("/SignIn");
   };
 
-  useEffect(() => {
-    const handleNotifications = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+ useEffect(() => {
+  const handleNotifications = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-      try {
-        const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/match/",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await res.text();
-    
-          if (res.ok) {
-            setMatches(data);
-          } else {
-            setMatches(null);
-          }
-        } catch (err) {
-          console.error("Response was not JSON.");
+    try {
+      const res = await fetch(
+        "https://forgotten-books-project-backend.vercel.app/match/all",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-     
-    };
+      );
 
-    handleNotifications();
-  }, []);
+      const data = await res.json(); 
+
+      if (res.ok) {
+        setMatches(data.matches || []); 
+      } else {
+        setMatches([]);
+      }
+    } catch (err) {
+      console.error("Matches fetch failed:", err);
+      setMatches([]);
+    }
+  };
+
+  handleNotifications();
+}, []);
+
 
   useEffect(() => {
     const fetchProfile = async () => {
