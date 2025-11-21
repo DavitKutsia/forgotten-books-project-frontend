@@ -9,7 +9,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import BuyButton from "../components/BuyButton";
 
 export default function Homepage() {
   const navigate = useNavigate();
@@ -54,6 +53,9 @@ export default function Homepage() {
 
     fetchProducts();
   }, [token, navigate]);
+
+  
+
   return (
     <div className="min-h-screen flex flex-col bg-[#121212]  text-gray-100">
       {/* Header */}
@@ -110,12 +112,6 @@ export default function Homepage() {
                         "No description available."}
                     </CardDescription>
 
-                    <p className="mt-2 text-yellow-400 font-semibold">
-                      Price: ${product.price ?? "0"}
-                    </p>
-
-                    <BuyButton product={product} />
-
                     {product.tags && (
                       <p className="mt-1 text-gray-400 text-sm">
                         Tags: {product.tags.join(", ")}
@@ -152,3 +148,4 @@ export default function Homepage() {
     </div>
   );
 }
+
