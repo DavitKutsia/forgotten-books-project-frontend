@@ -95,38 +95,39 @@ export default function UserProfile() {
     }
   };
 
+const handleSubscribe = async () => {
+  try {
+    const resp = await fetch(
+      `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productName: "Premium Subscription",
+          amount: 9.99, 
+          description: "Access to all premium features"
+        }),
+      }
+    );
+
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || "Failed to start subscription");
+
+    window.location.href = data.url;
+  } catch (err) {
+    toast.error(err.message);
+  }
+};
+
+
   useEffect(() => {
     if (!token) navigate("/SignIn");
     else getUserProfile();
   }, [token, navigate]);
 
-  const handleSubscribe = async () => {
-    try {
-      const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/stripe/subscriptions/create-session",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            priceId: "price_123", // replace with your real Stripe Price ID
-          }),
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.message || "Failed to start subscription");
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Subscription failed");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#0a192f] text-gray-100 flex flex-col">
@@ -288,3 +289,4 @@ export default function UserProfile() {
     </div>
   );
 }
+
