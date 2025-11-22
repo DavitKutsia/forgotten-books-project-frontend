@@ -13,7 +13,6 @@ export default function Success() {
       localStorage.setItem("token", token);
     }
 
-    // Redirect to homepage after a short delay
     const timer = setTimeout(() => {
       navigate("/");
     }, 2000);

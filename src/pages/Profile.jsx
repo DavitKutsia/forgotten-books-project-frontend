@@ -28,7 +28,6 @@ export default function UserProfile() {
       const data = await res.json();
       setUser(data.user || data);
       console.log(data);
-      console.log(data);
       setFormData({
         name: data.user?.name || data.name || "",
         email: data.user?.email || data.email || "",
