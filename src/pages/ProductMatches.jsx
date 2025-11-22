@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Header from "../components/Header";
+
 import { useParams, useNavigate } from "react-router-dom";
 
 export default function ProductMatches() {
@@ -13,6 +14,7 @@ export default function ProductMatches() {
   const [error, setError] = useState("");
   const [hasSubscription, setHasSubscription] = useState(true);
   const [matchCount, setMatchCount] = useState(0);
+  const [user, setUser] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -20,8 +22,37 @@ export default function ProductMatches() {
     if (id) {
       fetchMatches();
       fetchProduct();
+      getUserProfile();
     }
   }, [id]);
+
+  const handleSubscribe = async () => {
+    try {
+      const resp = await fetch(
+        `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productName: "Premium Subscription",
+            amount: 9.99,
+            description: "Access to all premium features",
+          }),
+        }
+      );
+
+      const data = await resp.json();
+      if (!resp.ok)
+        throw new Error(data.message || "Failed to start subscription");
+
+      window.location.href = data.url;
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   const fetchProduct = async () => {
     try {
@@ -37,6 +68,25 @@ export default function ProductMatches() {
       if (res.ok) {
         const data = await res.json();
         setProduct(data);
+      }
+    } catch (err) {
+      console.error("Error fetching product:", err);
+    }
+  };
+
+  const getUserProfile = async () => {
+    try {
+      const res = await fetch(
+        "https://forgotten-books-project-backend.vercel.app/auth/profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user || data);
+        console.log(data);
       }
     } catch (err) {
       console.error("Error fetching product:", err);
@@ -64,18 +114,11 @@ export default function ProductMatches() {
           setError("Failed to fetch matches.");
         }
         return;
-      }
-
-      const data = await res.json();
-
-      if (data.message && data.message.includes("subscription")) {
-        setHasSubscription(false);
-        setMatchCount(data.count);
-        setMatches([]);
       } else {
-        setHasSubscription(true);
-        setMatches(data.matches || []);
-        setMatchCount(data.count || data.matches?.length || 0);
+        const data = await res.json();
+        console.log(data)
+        setMatches(data);
+        setMatchCount(data.count);
       }
     } catch (err) {
       setError("Network error. Please try again.");
@@ -164,7 +207,7 @@ export default function ProductMatches() {
         )}
 
         {/* Subscription Check */}
-        {!hasSubscription ? (
+        {user && !user.subscriptionActive ? (
           <Card className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/50">
             <CardHeader>
               <CardTitle className="text-white text-xl">
@@ -181,7 +224,10 @@ export default function ProductMatches() {
                   Upgrade your subscription to see who matched with your product
                   and connect with potential buyers.
                 </p>
-                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-3">
+                <Button
+                  onClick={handleSubscribe}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-3"
+                >
                   Upgrade to Premium
                 </Button>
               </div>
