@@ -58,7 +58,7 @@ export default function Header() {
 
       try {
         const res = await fetch(
-          "http://localhost:4000/auth/profile",
+          "https://forgotten-books-project-backend.vercel.app/auth/profile",
           {
             headers: {
               "Content-Type": "application/json",
