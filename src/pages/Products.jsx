@@ -12,7 +12,7 @@ export default function Products() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:4000/products");
+        const res = await fetch("https://forgotten-books-project-backend.vercel.app/products");
         const data = await res.json();
 
         if (!res.ok) {
