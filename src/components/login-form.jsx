@@ -61,7 +61,7 @@ useEffect(() => {
   };
 
   const handleGoogleLogin = (userRole) => {
-    window.location.href = `http://localhost:4000/auth/google?role=${userRole}`;
+    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google?role=${userRole}`;
   };
 
   const handleSubmit = async (e) => {
@@ -71,7 +71,7 @@ useEffect(() => {
 
     try {
       const res = await fetch(
-        "http://localhost:4000/auth/login",
+        "https://forgotten-books-project-backend.vercel.app/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -87,7 +87,7 @@ useEffect(() => {
 
         try {
           const profileRes = await fetch(
-            "http://localhost:4000/auth/profile",
+            "https://forgotten-books-project-backend.vercel.app/auth/profile",
             {
               headers: {
                 Authorization: `Bearer ${data.token}`,
