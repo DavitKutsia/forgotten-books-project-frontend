@@ -97,7 +97,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/users/${userId}`,
+        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -128,7 +128,7 @@ export default function Adminpanel() {
 
       try {
         const res = await fetch(
-          "http://localhost:4000/auth/profile",
+          "https://forgotten-books-project-backend.vercel.app/auth/profile",
           {
             headers: {
               "Content-Type": "application/json",
@@ -172,7 +172,7 @@ export default function Adminpanel() {
 
       try {
         const res = await fetch(
-          "http://localhost:4000/admin/stats",
+          "https://forgotten-books-project-backend.vercel.app/admin/stats",
           {
             headers: {
               "Content-Type": "application/json",
@@ -203,7 +203,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "http://localhost:4000/users",
+          "https://forgotten-books-project-backend.vercel.app/users",
           {
             headers: {
               "Content-Type": "application/json",
@@ -230,7 +230,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "http://localhost:4000/products",
+          "https://forgotten-books-project-backend.vercel.app/products",
           {
             headers: {
               "Content-Type": "application/json",
@@ -272,7 +272,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/products/${productId}`,
+        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
         {
           method: "PUT",
           headers: {
@@ -304,7 +304,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/products/${productId}`,
+        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
         {
           method: "DELETE",
           headers: {
