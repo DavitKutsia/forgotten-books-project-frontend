@@ -30,7 +30,7 @@ export function SignupForm({ role, ...props }) {
   });
 
   const handleGoogleLogin = (userRole) => {
-    window.location.href = `http://localhost:4000/auth/google?role=${userRole}`;
+    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google?role=${userRole}`;
   };
 
   const handleChange = (e) => {
@@ -51,7 +51,7 @@ export function SignupForm({ role, ...props }) {
     setErrors({});
     try {
       const res = await fetch(
-        `http://localhost:4000/auth/register`,
+        `https://forgotten-books-project-backend.vercel.app/auth/register`,
         {
           method: "POST",
           headers: {
