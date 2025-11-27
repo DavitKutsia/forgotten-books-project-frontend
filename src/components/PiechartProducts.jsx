@@ -27,7 +27,7 @@ export default function ProductsChart() {
 
       try {
         const res = await fetch(
-          "http://localhost:4000/products",
+          "https://forgotten-books-project-backend.vercel.app/products",
           {
             headers: {
               "Content-Type": "application/json",
