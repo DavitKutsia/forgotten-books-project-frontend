@@ -51,7 +51,7 @@ export default function CreateProduct() {
       };
 
       const res = await fetch(
-        "http://localhost:4000/products",
+        "https://forgotten-books-project-backend.vercel.app/products",
         {
           method: "POST",
           headers: {
