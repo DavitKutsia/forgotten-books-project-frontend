@@ -62,7 +62,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        `http://localhost:4000/users/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -97,7 +97,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        `http://localhost:4000/users/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -128,7 +128,7 @@ export default function Adminpanel() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/auth/profile",
+          "http://localhost:4000/auth/profile",
           {
             headers: {
               "Content-Type": "application/json",
@@ -172,7 +172,7 @@ export default function Adminpanel() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/admin/stats",
+          "http://localhost:4000/admin/stats",
           {
             headers: {
               "Content-Type": "application/json",
@@ -203,7 +203,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/users",
+          "http://localhost:4000/users",
           {
             headers: {
               "Content-Type": "application/json",
@@ -230,7 +230,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/products",
+          "http://localhost:4000/products",
           {
             headers: {
               "Content-Type": "application/json",
@@ -272,7 +272,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `http://localhost:4000/products/${productId}`,
         {
           method: "PUT",
           headers: {
@@ -304,7 +304,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `http://localhost:4000/products/${productId}`,
         {
           method: "DELETE",
           headers: {

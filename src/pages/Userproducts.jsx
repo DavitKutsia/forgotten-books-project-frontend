@@ -33,7 +33,7 @@ export default function UserProducts({variable}) {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/auth/profile",
+          "http://localhost:4000/auth/profile",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -66,7 +66,7 @@ export default function UserProducts({variable}) {
 
       try {
         const res = await fetch(
-          `https://forgotten-books-project-backend.vercel.app/users/${userId}/products`,
+          `http://localhost:4000/users/${userId}/products`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -112,7 +112,7 @@ export default function UserProducts({variable}) {
   const handleUpdate = async (productId) => {
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `http://localhost:4000/products/${productId}`,
         {
           method: "PUT",
           headers: {
@@ -142,7 +142,7 @@ export default function UserProducts({variable}) {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `http://localhost:4000/products/${productId}`,
         {
           method: "DELETE",
           headers: {

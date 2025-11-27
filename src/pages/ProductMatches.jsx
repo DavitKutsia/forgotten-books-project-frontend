@@ -29,7 +29,7 @@ export default function ProductMatches() {
   const handleSubscribe = async () => {
     try {
       const resp = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
+        `http://localhost:4000/stripe/checkout`,
         {
           method: "POST",
           headers: {
@@ -57,7 +57,7 @@ export default function ProductMatches() {
   const fetchProduct = async () => {
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${id}`,
+        `http://localhost:4000/products/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -77,7 +77,7 @@ export default function ProductMatches() {
   const getUserProfile = async () => {
     try {
       const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/auth/profile",
+        "http://localhost:4000/auth/profile",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -97,7 +97,7 @@ export default function ProductMatches() {
     try {
       setLoading(true);
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/match/${id}`,
+        `http://localhost:4000/match/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

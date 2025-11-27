@@ -33,7 +33,7 @@ export default function ChartPieLabel() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/admin/stats",
+          "http://localhost:4000/admin/stats",
           {
             headers: {
               "Content-Type": "application/json",

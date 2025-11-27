@@ -24,7 +24,7 @@ export default function Homepage() {
       setError("");
       try {
         const res = await fetch(
-          `https://forgotten-books-project-backend.vercel.app/products/`,
+          `http://localhost:4000/products/`,
           {
             method: "GET",
             headers: {

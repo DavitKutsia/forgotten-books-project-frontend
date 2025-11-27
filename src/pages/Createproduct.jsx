@@ -51,7 +51,7 @@ export default function CreateProduct() {
       };
 
       const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/products",
+        "http://localhost:4000/products",
         {
           method: "POST",
           headers: {
@@ -88,7 +88,7 @@ export default function CreateProduct() {
             Create Product
           </CardTitle>
           <CardDescription className="text-blue-200 opacity-70">
-            Add a new product :)
+            Add a new product :
           </CardDescription>
         </CardHeader>
         <CardContent>

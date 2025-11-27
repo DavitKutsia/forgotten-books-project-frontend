@@ -64,7 +64,7 @@ export default function Projects() {
     try {
       setLoading(true);
       const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/products",
+        "http://localhost:4000/products",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ export default function Projects() {
   const createMatch = async (productId) => {
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/match/${productId}`,
+        `http://localhost:4000/match/${productId}`,
         {
           method: "POST",
           headers: {
