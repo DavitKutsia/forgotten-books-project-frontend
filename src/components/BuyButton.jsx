@@ -11,7 +11,7 @@ export default function BuyButton({ product }) {
 
     try {
       const resp = await fetch(
-        `http://localhost:4000/stripe/checkout`,
+        `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
         {
           method: "POST",
           headers: {
