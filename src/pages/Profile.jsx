@@ -14,7 +14,7 @@ export default function UserProfile() {
 
   const getUserProfile = async () => {
     try {
-      const res = await fetch("http://localhost:4000/auth/profile", {
+      const res = await fetch("https://forgotten-books-project-backend.vercel.app/auth/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
@@ -37,7 +37,7 @@ export default function UserProfile() {
     formData.append("avatar", file)
 
     try {
-      const res = await fetch("http://localhost:4000/users/upload-avatar", {
+      const res = await fetch("https://forgotten-books-project-backend.vercel.app/users/upload-avatar", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -54,7 +54,7 @@ export default function UserProfile() {
   const handleUpdateProfile = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch(`http://localhost:4000/users/${user._id}`, {
+      const res = await fetch(`https://forgotten-books-project-backend.vercel.app/users/${user._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function UserProfile() {
 
   const handleSubscribe = async () => {
     try {
-      const resp = await fetch("http://localhost:4000/stripe/checkout", {
+      const resp = await fetch("https://forgotten-books-project-backend.vercel.app/stripe/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,7 +96,7 @@ export default function UserProfile() {
 
   const handleCancelSubscription = async () => {
     try {
-      const res = await fetch("http://localhost:4000/stripe/cancel", {
+      const res = await fetch("https://forgotten-books-project-backend.vercel.app/stripe/cancel", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
