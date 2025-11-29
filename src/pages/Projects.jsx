@@ -64,7 +64,7 @@ export default function Projects() {
     try {
       setLoading(true);
       const res = await fetch(
-        "http://localhost:4000/products",
+        "https://forgotten-books-project-backend.vercel.app/products",
         {
           headers: {
             Authorization: `Bearer ${token}`,
