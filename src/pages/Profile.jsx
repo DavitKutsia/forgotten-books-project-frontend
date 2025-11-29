@@ -119,7 +119,7 @@ useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("success") === "true") {
     // Call backend to activate subscription
-    fetch("http://localhost:4000/stripe/activate", {
+    fetch("https://forgotten-books-project-backend.vercel.app/stripe/activate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
