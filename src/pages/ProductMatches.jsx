@@ -97,7 +97,7 @@ export default function ProductMatches() {
   try {
     setLoading(true);
 
-    const res = await fetch(`http://localhost:4000/match/${id}`, {
+    const res = await fetch(`https://forgotten-books-project-backend.vercel.app/match/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
