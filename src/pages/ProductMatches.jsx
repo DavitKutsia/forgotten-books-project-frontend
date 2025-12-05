@@ -94,39 +94,33 @@ export default function ProductMatches() {
   };
 
   const fetchMatches = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `http://localhost:4000/match/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  try {
+    setLoading(true);
 
-      if (!res.ok) {
-        if (res.status === 403) {
-          setError("You don't own this product.");
-        } else if (res.status === 404) {
-          setError("Product not found.");
-        } else {
-          setError("Failed to fetch matches.");
-        }
-        return;
-      } else {
-        const data = await res.json();
-        console.log(data)
-        setMatches(data);
-        setMatchCount(data.count);
-      }
-    } catch (err) {
-      setError("Network error. Please try again.");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    const res = await fetch(`http://localhost:4000/match/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+    console.log("MATCHES RESPONSE:", data);
+
+    setMatchCount(data.count || 0);
+
+    if (!data.matches) {
+      setMatches([]); 
+      return;
     }
-  };
+
+    setMatches(data.matches);
+
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load matches.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {

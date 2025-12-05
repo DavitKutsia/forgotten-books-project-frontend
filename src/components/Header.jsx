@@ -106,7 +106,7 @@ export default function Header() {
           >
             Homepage
           </span>
-          <div
+          {/* <div
             className="relative hover:scale-105 transition cursor-pointer"
             onClick={() => navigate("/Aboutus")}
           >
@@ -117,7 +117,7 @@ export default function Header() {
             className="relative hover:scale-105 transition cursor-pointer"
           >
             Contact
-          </span>
+          </span> */}
         </section>
         {!user && (
           <button
@@ -253,7 +253,7 @@ export default function Header() {
             >
               Homepage
             </span>
-            <span
+            {/* <span
               onClick={() => {
                 navigate("/Aboutus");
                 setMobileNavOpen(false);
@@ -270,7 +270,7 @@ export default function Header() {
               className="block"
             >
               Contact
-            </span>
+            </span> */}
 
             {!user ? (
               <button
