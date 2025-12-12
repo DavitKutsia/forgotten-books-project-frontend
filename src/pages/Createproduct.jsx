@@ -17,7 +17,11 @@ import {
 } from "@/components/ui/field";
 import Header from "../components/Header";
 
+
+
 export default function CreateProduct() {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
@@ -51,7 +55,7 @@ export default function CreateProduct() {
       };
 
       const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/products",
+        `${backendUrl}/products`,
         {
           method: "POST",
           headers: {
@@ -112,18 +116,6 @@ export default function CreateProduct() {
                   value={formData.content}
                   onChange={handleChange}
                   placeholder="Enter description"
-                  className="bg-[#0F162B] text-white border-[#2A3B67] focus:ring-blue-400"
-                />
-              </Field>
-
-              <Field>
-                <FieldLabel className="text-blue-300">Price</FieldLabel>
-                <Input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  placeholder="Enter price"
                   className="bg-[#0F162B] text-white border-[#2A3B67] focus:ring-blue-400"
                 />
               </Field>

@@ -8,6 +8,9 @@ import { useParams, useNavigate } from "react-router-dom";
 export default function ProductMatches() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
   const [matches, setMatches] = useState([]);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,21 +31,18 @@ export default function ProductMatches() {
 
   const handleSubscribe = async () => {
     try {
-      const resp = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productName: "Premium Subscription",
-            amount: 9.99,
-            description: "Access to all premium features",
-          }),
-        }
-      );
+      const resp = await fetch(`${backendUrl}/stripe/checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productName: "Premium Subscription",
+          amount: 9.99,
+          description: "Access to all premium features",
+        }),
+      });
 
       const data = await resp.json();
       if (!resp.ok)
@@ -50,20 +50,17 @@ export default function ProductMatches() {
 
       window.location.href = data.url;
     } catch (err) {
-      toast.error(err.message);
+      console.error(err);
     }
   };
 
   const fetchProduct = async () => {
     try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${backendUrl}/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (res.ok) {
         const data = await res.json();
@@ -76,51 +73,45 @@ export default function ProductMatches() {
 
   const getUserProfile = async () => {
     try {
-      const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/auth/profile",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${backendUrl}/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (res.ok) {
         const data = await res.json();
         setUser(data.user || data);
-        console.log(data);
       }
     } catch (err) {
-      console.error("Error fetching product:", err);
+      console.error("Error fetching user profile:", err);
     }
   };
 
   const fetchMatches = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await fetch(`http://localhost:4000/match/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      const res = await fetch(`${backendUrl}/match/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const data = await res.json();
-    console.log("MATCHES RESPONSE:", data);
+      const data = await res.json();
+      console.log("MATCHES RESPONSE:", data);
 
-    setMatchCount(data.count || 0);
+      setMatchCount(data.count || 0);
 
-    if (!data.matches) {
-      setMatches([]); 
-      return;
+      if (!data.matches) {
+        setMatches([]);
+        return;
+      }
+
+      setMatches(data.matches);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load matches.");
+    } finally {
+      setLoading(false);
     }
-
-    setMatches(data.matches);
-
-  } catch (err) {
-    console.error(err);
-    setError("Failed to load matches.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -200,7 +191,7 @@ export default function ProductMatches() {
           </Card>
         )}
 
-        {/* Subscription Check */}
+        {/* Subscription Required */}
         {user && !user.subscriptionActive ? (
           <Card className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/50">
             <CardHeader>
@@ -215,8 +206,8 @@ export default function ProductMatches() {
                   You have {matchCount} match{matchCount !== 1 ? "es" : ""}!
                 </h3>
                 <p className="text-gray-300 mb-6">
-                  Upgrade your subscription to see who matched with your product
-                  and connect with potential buyers.
+                  Upgrade your subscription to see match details and connect
+                  with buyers.
                 </p>
                 <Button
                   onClick={handleSubscribe}
@@ -240,7 +231,7 @@ export default function ProductMatches() {
                   <div className="text-6xl mb-4">🔍</div>
                   <h3 className="text-xl font-bold mb-2">No matches yet</h3>
                   <p className="text-gray-400">
-                    When people swipe right on your product, they'll appear
+                    When people swipe right on your product, you'll see them
                     here.
                   </p>
                 </CardContent>
@@ -270,6 +261,7 @@ export default function ProductMatches() {
                         )}
                       </div>
                     </CardHeader>
+
                     <CardContent>
                       <div className="space-y-3">
                         <div>

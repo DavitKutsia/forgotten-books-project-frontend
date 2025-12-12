@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,9 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 
-export default function UserProducts({variable}) {
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+
+export default function UserProducts() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,24 +25,20 @@ export default function UserProducts({variable}) {
     price: "",
   });
 
-
   const token = localStorage.getItem("token");
+
   const [userId, setUserId] = useState("");
+
+  // Fetch Profile
   useEffect(() => {
     const fetchProfile = async () => {
-      setLoading(true);
-      setError("");
-
       try {
-        const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/auth/profile",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        setLoading(true);
+        const res = await fetch(`${backendUrl}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const data = await res.json();
-        console.log("PROFILE:", data);
 
         if (!res.ok) {
           setError(data.message || "Failed to fetch profile");
@@ -57,23 +55,18 @@ export default function UserProducts({variable}) {
     fetchProfile();
   }, [token]);
 
+  // Fetch Products
   useEffect(() => {
     if (!userId) return;
 
     const fetchProducts = async () => {
-      setLoading(true);
-      setError("");
-
       try {
-        const res = await fetch(
-          `https://forgotten-books-project-backend.vercel.app/users/${userId}/products`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        setLoading(true);
+        const res = await fetch(`${backendUrl}/users/${userId}/products`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const data = await res.json();
-        console.log("PRODUCTS:", data);
 
         if (!res.ok) {
           setError(data.message || "Failed to fetch products");
@@ -90,11 +83,12 @@ export default function UserProducts({variable}) {
     fetchProducts();
   }, [userId, token]);
 
+  // Edit Handlers
   const handleEditClick = (product) => {
     setEditProductId(product._id);
     setEditData({
       title: product.title,
-      content: product.content || product.content || "",
+      content: product.content || "",
       price: product.price,
     });
   };
@@ -109,68 +103,68 @@ export default function UserProducts({variable}) {
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Update Product
   const handleUpdate = async (productId) => {
     try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(editData),
-        }
-      );
+      const res = await fetch(`${backendUrl}/products/${productId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editData),
+      });
 
       const data = await res.json();
-      if (!res.ok) setError(data.message || "Failed to update product");
-      else {
+
+      if (!res.ok) {
+        setError(data.message || "Failed to update product");
+      } else {
         setProducts((prev) =>
           prev.map((p) => (p._id === productId ? { ...p, ...editData } : p))
         );
         handleCancelEdit();
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Try again.");
     }
   };
 
+  // Delete Product
   const handleDelete = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?"))
       return;
 
     try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${backendUrl}/products/${productId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      let data;
+      let data = null;
       try {
         data = await res.json();
-      } catch (err) {
-        data = null;
-      }
+      } catch {}
 
-      if (!res.ok) setError(data?.message || "Failed to delete product");
-      else setProducts((prev) => prev.filter((p) => p._id !== productId));
-    } catch (err) {
+      if (!res.ok) {
+        setError(data?.message || "Failed to delete product");
+      } else {
+        setProducts((prev) => prev.filter((p) => p._id !== productId));
+      }
+    } catch {
       setError("Something went wrong. Try again.");
-      console.log(err);
     }
   };
 
   return (
     <div className="relative w-full min-h-screen bg-[#121212] text-white">
       <Header />
+
       <div className="max-w-6xl mx-auto pt-40 p-4">
         <h1 className="text-3xl mb-6 text-white">My Products</h1>
+
         {loading && <p className="text-blue-400">Loading products...</p>}
         {error && <p className="text-red-500">{error}</p>}
 
@@ -194,6 +188,7 @@ export default function UserProducts({variable}) {
                   </CardTitle>
                 )}
               </CardHeader>
+
               <CardContent>
                 {editProductId === product._id ? (
                   <>
@@ -204,6 +199,7 @@ export default function UserProducts({variable}) {
                       rows={5}
                       className="w-full resize-none bg-[#333333] p-2 rounded text-white"
                     />
+
                     <Input
                       type="number"
                       name="price"
@@ -211,6 +207,7 @@ export default function UserProducts({variable}) {
                       onChange={handleChange}
                       className="bg-[#333333] text-white mt-2"
                     />
+
                     <div className="flex gap-2 mt-2">
                       <Button onClick={() => handleUpdate(product._id)}>
                         Save
@@ -223,24 +220,28 @@ export default function UserProducts({variable}) {
                 ) : (
                   <>
                     <CardDescription className="text-gray-300">
-                      {product.content ||
-                        product.content ||
-                        "No description available."}
+                      {product.content || "No description available."}
                     </CardDescription>
+
                     <p className="mt-2 text-yellow-400 font-semibold">
                       Price: ${product.price}
                     </p>
+
                     <div className="flex gap-2 mt-4">
                       <Button onClick={() => handleEditClick(product)}>
                         Edit
                       </Button>
+
                       <Button
-                        onClick={() => navigate(`/productmatches/${product._id}`)}
+                        onClick={() =>
+                          navigate(`/productmatches/${product._id}`)
+                        }
                         variant="outline"
                         className="border-green-500 text-green-400 hover:bg-green-500/10"
                       >
                         View Matches
                       </Button>
+
                       <Button
                         onClick={() => handleDelete(product._id)}
                         variant="outline"

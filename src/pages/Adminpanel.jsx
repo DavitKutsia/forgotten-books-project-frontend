@@ -37,6 +37,8 @@ export default function Adminpanel() {
     role: "",
   });
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
   const handleUserEditClick = (user) => {
     setEditUserId(user._id);
     setEditUserData({
@@ -62,7 +64,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/users/${userId}`,
+        `${backendUrl}/users/${userId}`,
         {
           method: "PUT",
           headers: {
@@ -97,7 +99,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/users/${userId}`,
+        `${backendUrl}/users/${userId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -128,7 +130,7 @@ export default function Adminpanel() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/auth/profile",
+          `${backendUrl}/auth/profile`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -160,7 +162,7 @@ export default function Adminpanel() {
     };
 
     fetchUserProfile();
-  }, [navigate]);
+  }, [navigate, backendUrl]);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
@@ -172,7 +174,7 @@ export default function Adminpanel() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/admin/stats",
+          `${backendUrl}/admin/stats`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -192,7 +194,7 @@ export default function Adminpanel() {
     };
 
     fetchAdminStats();
-  }, [navigate]);
+  }, [navigate, backendUrl]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -203,7 +205,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/users",
+          `${backendUrl}/users`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -219,7 +221,7 @@ export default function Adminpanel() {
       }
     };
     fetchUsers();
-  }, [navigate]);
+  }, [navigate, backendUrl]);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -230,7 +232,7 @@ export default function Adminpanel() {
       }
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/products",
+          `${backendUrl}/products`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -246,7 +248,7 @@ export default function Adminpanel() {
       }
     };
     fetchAllProducts();
-  }, []);
+  }, [backendUrl]);
 
   const handleEditClick = (product) => {
     setEditProductId(product._id);
@@ -272,7 +274,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `${backendUrl}/products/${productId}`,
         {
           method: "PUT",
           headers: {
@@ -304,7 +306,7 @@ export default function Adminpanel() {
 
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/products/${productId}`,
+        `${backendUrl}/products/${productId}`,
         {
           method: "DELETE",
           headers: {

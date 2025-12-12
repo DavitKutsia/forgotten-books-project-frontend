@@ -23,6 +23,8 @@ export default function ChartPieLabel() {
     "var(--chart-5)",
   ];
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
   useEffect(() => {
     const fetchAdminStats = async () => {
       const token = localStorage.getItem("token");
@@ -33,7 +35,7 @@ export default function ChartPieLabel() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/admin/stats",
+          `${backendUrl}/admin/stats`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -53,7 +55,7 @@ export default function ChartPieLabel() {
     };
 
     fetchAdminStats();
-  }, [navigate]);
+  }, [navigate, backendUrl]);
 
   if (error) return <div>{error}</div>;
   if (!stats) return <div>Loading chart...</div>;

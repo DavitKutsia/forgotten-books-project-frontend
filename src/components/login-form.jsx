@@ -23,36 +23,34 @@ export function LoginForm({ className, ...props }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-useEffect(() => {
-  const token = searchParams.get('token');
-  const role = searchParams.get('role');
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
-  if (!token) return;
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const role = searchParams.get('role');
 
-  // Save token immediately
-  localStorage.setItem("token", token);
+    if (!token) return;
 
-  // Save role if backend sends it
-  if (role) {
-    localStorage.setItem("userRole", role);
-  }
+    localStorage.setItem("token", token);
 
-  // Fetch profile to get userId and confirm role
-  fetch("https://forgotten-books-project-backend.vercel.app/auth/profile", {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then(res => res.json())
-    .then(data => {
-      const user = data.user;
+    if (role) {
+      localStorage.setItem("userRole", role);
+    }
 
-      // Save userId from Google login
-      localStorage.setItem("userId", user.id || user._id);
+    fetch(`${backendUrl}/auth/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        const user = data.user;
 
-      // Redirect based on actual role
-      if (user.role === "admin") navigate("/adminpanel");
-      else navigate("/");
-    });
-}, [searchParams, navigate]);
+        localStorage.setItem("userId", user.id || user._id);
+
+        if (user.role === "admin") navigate("/adminpanel");
+        else navigate("/");
+      })
+      .catch(err => console.error("Profile fetch error:", err));
+  }, [searchParams, navigate, backendUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +59,7 @@ useEffect(() => {
   };
 
   const handleGoogleLogin = (userRole) => {
-    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google?role=${userRole}`;
+    window.location.href = `${backendUrl}/auth/google?role=${userRole}`;
   };
 
   const handleSubmit = async (e) => {
@@ -71,7 +69,7 @@ useEffect(() => {
 
     try {
       const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/auth/login",
+        `${backendUrl}/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -87,7 +85,7 @@ useEffect(() => {
 
         try {
           const profileRes = await fetch(
-            "https://forgotten-books-project-backend.vercel.app/auth/profile",
+            `${backendUrl}/auth/profile`,
             {
               headers: {
                 Authorization: `Bearer ${data.token}`,
@@ -247,7 +245,7 @@ useEffect(() => {
                     className="text-center mt-4"
                   >
                     Forgot your password?{" "}
-                    <span className="underline cursor-pointer">Reset here</span>
+                    <span className="underline cursor-pointer" onClick={() => navigate("/Signup")}>Reset here</span>
                   </FieldDescription>
                 </Field>
               </FieldGroup>

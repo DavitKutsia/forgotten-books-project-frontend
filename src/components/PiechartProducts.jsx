@@ -16,6 +16,7 @@ export default function ProductsChart() {
   const [error, setError] = useState(null);
 
   const chartColor = "var(--chart-1)";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -27,7 +28,7 @@ export default function ProductsChart() {
 
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/products",
+          `${backendUrl}/products`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -47,7 +48,7 @@ export default function ProductsChart() {
     };
 
     fetchProducts();
-  }, [navigate]);
+  }, [navigate, backendUrl]);
 
   if (error) return <div>{error}</div>;
   if (!products.length) return <div>Loading chart...</div>;

@@ -29,8 +29,10 @@ export function SignupForm({ role, ...props }) {
     role: role,
   });
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
   const handleGoogleLogin = (userRole) => {
-    window.location.href = `https://forgotten-books-project-backend.vercel.app/auth/google?role=${userRole}`;
+    window.location.href = `${backendUrl}/auth/google?role=${userRole}`;
   };
 
   const handleChange = (e) => {
@@ -51,7 +53,7 @@ export function SignupForm({ role, ...props }) {
     setErrors({});
     try {
       const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/auth/register`,
+        `${backendUrl}/auth/register`,
         {
           method: "POST",
           headers: {

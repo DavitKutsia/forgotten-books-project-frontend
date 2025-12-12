@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Header from "../components/Header";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
 const Toast = ({ message, type, onClose }) => {
   useEffect(() => {
@@ -56,31 +57,49 @@ export default function Projects() {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const fetchUserMatches = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/match/user/matches`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) return [];
+
+      const data = await res.json();
+      return data.map((m) => m.productId);
+    } catch (err) {
+      console.error("Failed to load matches", err);
+      return [];
+    }
+  };
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        "https://forgotten-books-project-backend.vercel.app/products",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+
+      const matchedProductIds = await fetchUserMatches();
+
+      const res = await fetch(`${backendUrl}/products`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) throw new Error("Failed to fetch products");
 
       const data = await res.json();
-      const otherProducts = data.filter(
-        (product) => product.user?._id !== currentUserId
-      );
-      setProducts(otherProducts);
 
-      if (otherProducts.length < 0) {
+      const filtered = data.filter(
+        (product) =>
+          product.user?._id !== currentUserId &&
+          !matchedProductIds.includes(product._id)
+      );
+
+      setProducts(filtered);
+
+      if (filtered.length === 0) {
         addToast(`No products available`, "success");
       }
     } catch (err) {
@@ -94,30 +113,24 @@ export default function Projects() {
 
   const createMatch = async (productId) => {
     try {
-      const res = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/match/${productId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const res = await fetch(`${backendUrl}/match/${productId}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await res.json();
 
       if (res.ok) {
-        console.log("Match created:", data.matchId);
         addToast(`✨ Match created successfully!`, "success");
         return { success: true, data };
       } else {
-        console.log("Match creation failed:", data.message);
         addToast(`❌ ${data.message || "Match creation failed"}`, "error");
         return { success: false, error: data.message };
       }
     } catch (err) {
-      console.error("Error creating match:", err);
       addToast("🚫 Network error creating match", "error");
       return { success: false, error: err.message };
     }
@@ -174,31 +187,16 @@ export default function Projects() {
     setSwipeDirection(null);
   };
 
-  const handleMouseDown = (e) => {
-    handleStart(e.clientX, e.clientY);
-  };
+  const handleMouseDown = (e) => handleStart(e.clientX, e.clientY);
+  const handleMouseMove = (e) => handleMove(e.clientX, e.clientY);
+  const handleMouseUp = () => handleEnd();
+  const handleTouchStart = (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY);
+  const handleTouchMove = (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
+  const handleTouchEnd = () => handleEnd();
 
-  const handleMouseMove = (e) => {
-    handleMove(e.clientX, e.clientY);
-  };
-
-  const handleMouseUp = () => {
-    handleEnd();
-  };
-
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    handleStart(touch.clientX, touch.clientY);
-  };
-
-  const handleTouchMove = (e) => {
-    const touch = e.touches[0];
-    handleMove(touch.clientX, touch.clientY);
-  };
-
-  const handleTouchEnd = () => {
-    handleEnd();
-  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     if (isDragging) {
@@ -210,7 +208,7 @@ export default function Projects() {
         document.removeEventListener("mouseup", handleMouseUp);
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging]);
 
   const currentProduct = products[currentIndex];
   const hasMoreProducts = currentIndex < products.length;
@@ -230,7 +228,6 @@ export default function Projects() {
     <div className="min-h-screen w-full bg-[#121212] text-white">
       <Header />
 
-      {/* Toast Notifications */}
       <div className="fixed top-4 right-4 z-50 space-y-2">
         {toasts.map((toast) => (
           <Toast
@@ -243,7 +240,7 @@ export default function Projects() {
       </div>
 
       <div className="min-h-screen w-full mx-auto pt-40 p-4">
-        <div className="flex justify-center items-center ">
+        <div className="flex justify-center items-center">
           {hasMoreProducts ? (
             <div className="relative w-full max-w-md">
               <div className="text-center mb-4">
@@ -254,25 +251,14 @@ export default function Projects() {
 
               <Card
                 ref={cardRef}
-                className={`
-                  bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] 
+                className={`bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)]
                   cursor-grab active:cursor-grabbing
                   transition-all duration-200 ease-out
-                  ${
-                    swipeDirection === "right"
-                      ? "border-green-500 shadow-green-500/20"
-                      : ""
-                  }
-                  ${
-                    swipeDirection === "left"
-                      ? "border-red-500 shadow-red-500/20"
-                      : ""
-                  }
+                  ${swipeDirection === "right" ? "border-green-500 shadow-green-500/20" : ""}
+                  ${swipeDirection === "left" ? "border-red-500 shadow-red-500/20" : ""}
                 `}
                 style={{
-                  transform: `translate(${dragOffset.x}px, ${
-                    dragOffset.y
-                  }px) rotate(${dragOffset.x * 0.1}deg)`,
+                  transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.1}deg)`,
                   opacity: isDragging ? 0.9 : 1,
                 }}
                 onMouseDown={handleMouseDown}
@@ -284,9 +270,6 @@ export default function Projects() {
                   <CardTitle className="text-white text-xl">
                     {currentProduct?.title || "Untitled"}
                   </CardTitle>
-                  <p className="text-gray-400">
-                    by @{currentProduct?.user?.name || "Unknown"}
-                  </p>
                 </CardHeader>
 
                 <CardContent>
@@ -295,9 +278,6 @@ export default function Projects() {
                   </p>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-yellow-400 font-semibold text-lg">
-                      ${currentProduct?.price || "0"}
-                    </span>
                     <span className="text-sm text-gray-500">
                       {currentIndex + 1} / {products.length}
                     </span>
@@ -308,14 +288,9 @@ export default function Projects() {
               {swipeDirection && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div
-                    className={`
-                      text-6xl font-bold opacity-80
-                      ${
-                        swipeDirection === "right"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }
-                    `}
+                    className={`text-6xl font-bold opacity-80 ${
+                      swipeDirection === "right" ? "text-green-500" : "text-red-500"
+                    }`}
                   >
                     {swipeDirection === "right" ? "💚 MATCH" : "❌ PASS"}
                   </div>
@@ -343,7 +318,6 @@ export default function Projects() {
               <p className="text-gray-400 mb-8">
                 You've seen all available products.
               </p>
-              <div className="flex gap-4 justify-center"></div>
             </div>
           )}
         </div>

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import "../App.css";
 import { Bell } from "lucide-react";
+
 export default function Header() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigate = useNavigate();
@@ -18,47 +19,48 @@ export default function Header() {
     navigate("/SignIn");
   };
 
- useEffect(() => {
-  const handleNotifications = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  useEffect(() => {
+    const handleNotifications = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-    try {
-      const res = await fetch(
-        "http://localhost:4000/match/all",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+      try {
+        const res = await fetch(
+          `${backendUrl}/match/all`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json(); 
+
+        if (res.ok) {
+          setMatches(data.matches || []); 
+        } else {
+          setMatches([]);
         }
-      );
-
-      const data = await res.json(); 
-
-      if (res.ok) {
-        setMatches(data.matches || []); 
-      } else {
+      } catch (err) {
+        console.error("Matches fetch failed:", err);
         setMatches([]);
       }
-    } catch (err) {
-      console.error("Matches fetch failed:", err);
-      setMatches([]);
-    }
-  };
+    };
 
-  handleNotifications();
-}, []);
-
+    handleNotifications();
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       try {
         const res = await fetch(
-          "https://forgotten-books-project-backend.vercel.app/auth/profile",
+          `${backendUrl}/auth/profile`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -75,7 +77,6 @@ export default function Header() {
             setUser(data.user || data);
           } else {
             console.log(localStorage.getItem("token"));
-
             setUser(null);
           }
         } catch (err) {
@@ -106,18 +107,6 @@ export default function Header() {
           >
             Homepage
           </span>
-          {/* <div
-            className="relative hover:scale-105 transition cursor-pointer"
-            onClick={() => navigate("/Aboutus")}
-          >
-            <span>About Us</span>
-          </div>
-          <span
-            onClick={() => navigate("/Contact")}
-            className="relative hover:scale-105 transition cursor-pointer"
-          >
-            Contact
-          </span> */}
         </section>
         {!user && (
           <button
@@ -253,24 +242,6 @@ export default function Header() {
             >
               Homepage
             </span>
-            {/* <span
-              onClick={() => {
-                navigate("/Aboutus");
-                setMobileNavOpen(false);
-              }}
-              className="block"
-            >
-              About Us
-            </span>
-            <span
-              onClick={() => {
-                navigate("/Contact");
-                setMobileNavOpen(false);
-              }}
-              className="block"
-            >
-              Contact
-            </span> */}
 
             {!user ? (
               <button

@@ -9,9 +9,11 @@ export default function BuyButton({ product }) {
       return;
     }
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+    
     try {
       const resp = await fetch(
-        `https://forgotten-books-project-backend.vercel.app/stripe/checkout`,
+        `${backendUrl}/stripe/checkout`,
         {
           method: "POST",
           headers: {
