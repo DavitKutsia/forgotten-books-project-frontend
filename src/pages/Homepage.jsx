@@ -39,7 +39,6 @@ export default function Homepage() {
         if (!res.ok) {
           setError(data.message || "Failed to fetch products");
           navigate("/SignUp");
-          alert("Please login to view projects!");
         } else {
           setProducts(data || []);
         }
