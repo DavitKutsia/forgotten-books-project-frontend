@@ -10,7 +10,7 @@ export default function ProductMatches() {
   const navigate = useNavigate();
 
   const backendUrl =
-    process.env.REACT_APP_BACKEND_URL;
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:4000";
 
   const [matches, setMatches] = useState([]);
   const [product, setProduct] = useState(null);
