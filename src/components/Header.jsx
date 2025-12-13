@@ -20,39 +20,6 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const handleNotifications = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
-      try {
-        const res = await fetch(
-          `${backendUrl}/match/all`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = await res.json(); 
-
-        if (res.ok) {
-          setMatches(data.matches || []); 
-        } else {
-          setMatches([]);
-        }
-      } catch (err) {
-        console.error("Matches fetch failed:", err);
-        setMatches([]);
-      }
-    };
-
-    handleNotifications();
-  }, []);
-
-  useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -128,13 +95,6 @@ export default function Header() {
                 {user.name} 👋
               </h1>{" "}
               <div className="relative ml-4">
-                <button
-                  onClick={() => {
-                    setNotificationTab((prev) => !prev);
-                  }}
-                  className="relative p-2 rounded-full hover:bg-gray-500 transition"
-                >
-                </button>
                 {notificationTab && (
                   <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10">
                     <div className="p-4">
