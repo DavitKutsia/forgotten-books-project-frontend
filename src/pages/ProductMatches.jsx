@@ -1,345 +1,305 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Header from "../components/Header";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+import { useParams, useNavigate } from "react-router-dom";
 
-const Toast = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
+export default function ProductMatches() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const bgColor =
-    type === "success"
-      ? "bg-green-500"
-      : type === "error"
-      ? "bg-red-500"
-      : type === "info"
-      ? "bg-blue-500"
-      : "bg-gray-500";
+  const backendUrl =
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:4000";
 
-  return (
-    <div
-      className={`fixed top-24 right-4 ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-slide-in`}
-    >
-      <div className="flex items-center gap-2">
-        <span>{message}</span>
-        <button onClick={onClose} className="text-white/80 hover:text-white">
-          ×
-        </button>
-      </div>
-    </div>
-  );
-};
-
-export default function Projects() {
-  const [products, setProducts] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [matches, setMatches] = useState([]);
+  const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [swipeDirection, setSwipeDirection] = useState(null);
-  const [toasts, setToasts] = useState([]);
-  const cardRef = useRef(null);
-  const startPosRef = useRef({ x: 0, y: 0 });
+  const [hasSubscription, setHasSubscription] = useState(true);
+  const [matchCount, setMatchCount] = useState(0);
+  const [user, setUser] = useState(null);
 
   const token = localStorage.getItem("token");
-  const currentUserId = localStorage.getItem("userId");
 
-  const addToast = (message, type = "info") => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-  };
+  useEffect(() => {
+    if (id) {
+      fetchMatches();
+      fetchProduct();
+      getUserProfile();
+    }
+  }, [id]);
 
-  const removeToast = (id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  // Fetch products the user has already matched
-  const fetchUserMatches = async () => {
+  const handleSubscribe = async () => {
     try {
-      const res = await fetch(`${backendUrl}/match/user/matches`, {
+      const resp = await fetch(`${backendUrl}/stripe/checkout`, {
+        method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          productName: "Premium Subscription",
+          amount: 9.99,
+          description: "Access to all premium features",
+        }),
       });
 
-      if (!res.ok) return [];
+      const data = await resp.json();
+      if (!resp.ok)
+        throw new Error(data.message || "Failed to start subscription");
 
-      const data = await res.json();
-      return data.map((m) => m.productId);
+      window.location.href = data.url;
     } catch (err) {
-      console.error("Failed to load matches", err);
-      return [];
+      console.error(err);
     }
   };
 
-  const fetchProducts = async () => {
+  const fetchProduct = async () => {
     try {
-      setLoading(true);
-
-      const matchedProductIds = await fetchUserMatches();
-
-      const res = await fetch(`${backendUrl}/products`, {
+      const res = await fetch(`${backendUrl}/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!res.ok) throw new Error("Failed to fetch products");
-
-      const data = await res.json();
-
-      const filtered = data.filter(
-        (product) =>
-          product.user?._id !== currentUserId &&
-          !matchedProductIds.includes(product._id)
-      );
-
-      setProducts(filtered);
-
-      if (filtered.length === 0) {
-        addToast(`No products available`, "success");
+      if (res.ok) {
+        const data = await res.json();
+        setProduct(data);
       }
     } catch (err) {
-      setError("Failed to load products");
-      addToast("Failed to load products from API", "error");
+      console.error("Error fetching product:", err);
+    }
+  };
+
+  const getUserProfile = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user || data);
+      }
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
+    }
+  };
+
+  const fetchMatches = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(`${backendUrl}/match/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      console.log("MATCHES RESPONSE:", data);
+
+      setMatchCount(data.count || 0);
+
+      if (!data.matches) {
+        setMatches([]);
+        return;
+      }
+
+      setMatches(data.matches);
+    } catch (err) {
       console.error(err);
+      setError("Failed to load matches.");
     } finally {
       setLoading(false);
     }
   };
 
-  const createMatch = async (productId) => {
-    try {
-      const res = await fetch(`${backendUrl}/match/${productId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        addToast(`✨ Match created successfully!`, "success");
-        return { success: true, data };
-      } else {
-        addToast(`❌ ${data.message || "Match creation failed"}`, "error");
-        return { success: false, error: data.message };
-      }
-    } catch (err) {
-      addToast("🚫 Network error creating match", "error");
-      return { success: false, error: err.message };
-    }
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
-
-  const handleSwipe = async (direction) => {
-    if (currentIndex >= products.length) return;
-
-    const currentProduct = products[currentIndex];
-
-    if (direction === "right") {
-      addToast("💚 Creating match...", "info");
-      await createMatch(currentProduct._id);
-    } else {
-      addToast(`👋 Passed on "${currentProduct.title}"`, "info");
-    }
-
-    setCurrentIndex((prev) => prev + 1);
-  };
-
-  const handleStart = (clientX, clientY) => {
-    setIsDragging(true);
-    startPosRef.current = { x: clientX, y: clientY };
-    setSwipeDirection(null);
-  };
-
-  const handleMove = (clientX, clientY) => {
-    if (!isDragging) return;
-
-    const deltaX = clientX - startPosRef.current.x;
-    const deltaY = clientY - startPosRef.current.y;
-
-    setDragOffset({ x: deltaX, y: deltaY });
-
-    if (Math.abs(deltaX) > 50) {
-      setSwipeDirection(deltaX > 0 ? "right" : "left");
-    } else {
-      setSwipeDirection(null);
-    }
-  };
-
-  const handleEnd = () => {
-    if (!isDragging) return;
-
-    const threshold = 100;
-
-    if (Math.abs(dragOffset.x) > threshold) {
-      const direction = dragOffset.x > 0 ? "right" : "left";
-      handleSwipe(direction);
-    }
-
-    setIsDragging(false);
-    setDragOffset({ x: 0, y: 0 });
-    setSwipeDirection(null);
-  };
-
-  const handleMouseDown = (e) => handleStart(e.clientX, e.clientY);
-  const handleMouseMove = (e) => handleMove(e.clientX, e.clientY);
-  const handleMouseUp = () => handleEnd();
-  const handleTouchStart = (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY);
-  const handleTouchMove = (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY);
-  const handleTouchEnd = () => handleEnd();
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      };
-    }
-  }, [isDragging]);
-
-  const currentProduct = products[currentIndex];
-  const hasMoreProducts = currentIndex < products.length;
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#121212] text-white">
         <Header />
         <div className="flex items-center justify-center h-screen">
-          <p className="text-blue-400">Loading products...</p>
+          <p className="text-blue-400">Loading matches...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#121212] text-white">
+        <Header />
+        <div className="flex flex-col items-center justify-center h-screen gap-4">
+          <p className="text-red-500 text-xl">{error}</p>
+          <Button
+            onClick={() => navigate("/userproducts")}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Back to My Products
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#121212] text-white">
+    <div className="min-h-screen bg-[#121212] text-white">
       <Header />
+      <div className="pt-32 px-4 max-w-6xl mx-auto">
+        {/* Back Navigation */}
+        <Button
+          onClick={() => navigate("/userproducts")}
+          variant="outline"
+          className="mb-6 border-gray-600 text-gray-300 hover:bg-gray-800"
+        >
+          ← Back to My Products
+        </Button>
 
-      {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            message={toast.message}
-            type={toast.type}
-            onClose={() => removeToast(toast.id)}
-          />
-        ))}
-      </div>
-
-      <div className="min-h-screen w-full mx-auto pt-40 p-4">
-        <div className="flex justify-center items-center">
-          {hasMoreProducts ? (
-            <div className="relative w-full max-w-md">
-              <div className="text-center mb-4">
-                <p className="text-gray-400">
-                  ← Swipe left to pass • Swipe right to match →
-                </p>
-              </div>
-
-              <Card
-                ref={cardRef}
-                className={`bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)]
-                  cursor-grab active:cursor-grabbing
-                  transition-all duration-200 ease-out
-                  ${swipeDirection === "right" ? "border-green-500 shadow-green-500/20" : ""}
-                  ${swipeDirection === "left" ? "border-red-500 shadow-red-500/20" : ""}
-                `}
-                style={{
-                  transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${dragOffset.x * 0.1}deg)`,
-                  opacity: isDragging ? 0.9 : 1,
-                }}
-                onMouseDown={handleMouseDown}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
-                <CardHeader>
-                  <CardTitle className="text-white text-xl">
-                    {currentProduct?.title || "Untitled"}
-                  </CardTitle>
-                </CardHeader>
-
-                <CardContent>
-                  <p className="text-gray-300 mb-4 line-clamp-4">
-                    {currentProduct?.content || "No description available."}
-                  </p>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      {currentIndex + 1} / {products.length}
-                    </span>
+        {/* Product Info */}
+        {product && (
+          <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] mb-8">
+            <CardHeader>
+              <CardTitle className="text-white text-2xl">
+                Matches for "{product.title}"
+              </CardTitle>
+              <p className="text-gray-400">
+                Track who's interested in your product
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-400">
+                    {matchCount}
                   </div>
+                  <div className="text-sm text-gray-400">Total Matches</div>
+                </div>
+                <div className="text-yellow-400 font-semibold">
+                  ${product.price}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Subscription Required */}
+        {user && !user.subscriptionActive ? (
+          <Card className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/50">
+            <CardHeader>
+              <CardTitle className="text-white text-xl">
+                🔒 Premium Feature
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">📊</div>
+                <h3 className="text-2xl font-bold mb-2">
+                  You have {matchCount} match{matchCount !== 1 ? "es" : ""}!
+                </h3>
+                <p className="text-gray-300 mb-6">
+                  Upgrade your subscription to see match details and connect
+                  with buyers.
+                </p>
+                <Button
+                  onClick={handleSubscribe}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-8 py-3"
+                >
+                  Upgrade to Premium
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          /* Matches List */
+          <div>
+            <h2 className="text-xl font-bold mb-6">
+              People Who Matched ({matchCount})
+            </h2>
+
+            {matches.length === 0 ? (
+              <Card className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)]">
+                <CardContent className="text-center py-12">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-xl font-bold mb-2">No matches yet</h3>
+                  <p className="text-gray-400">
+                    When people swipe right on your product, you'll see them
+                    here.
+                  </p>
                 </CardContent>
               </Card>
-
-              {swipeDirection && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div
-                    className={`text-6xl font-bold opacity-80 ${
-                      swipeDirection === "right" ? "text-green-500" : "text-red-500"
-                    }`}
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {matches.map((match) => (
+                  <Card
+                    key={match.matchId}
+                    className="bg-[#1E1E1E] border-[1.5px] border-[rgba(255,255,255,0.3)] hover:border-green-500/50 transition-colors"
                   >
-                    {swipeDirection === "right" ? "💚 MATCH" : "❌ PASS"}
-                  </div>
-                </div>
-              )}
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-white text-lg">
+                          {match.matcher?.name ||
+                            match.matcher?.username ||
+                            "Anonymous"}
+                        </CardTitle>
+                        {match.respondedByOwner ? (
+                          <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded text-sm">
+                            ✓ Responded
+                          </span>
+                        ) : (
+                          <span className="bg-orange-500/20 text-orange-400 px-2 py-1 rounded text-sm">
+                            ⏳ Pending
+                          </span>
+                        )}
+                      </div>
+                    </CardHeader>
 
-              <div className="flex justify-center gap-8 mt-8">
-                <button
-                  onClick={() => handleSwipe("left")}
-                  className="w-16 h-16 rounded-full bg-red-500/20 border-2 border-red-500 text-red-500 flex items-center justify-center text-2xl hover:bg-red-500/30 transition-colors"
-                >
-                  ❌
-                </button>
-                <button
-                  onClick={() => handleSwipe("right")}
-                  className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-500 text-green-500 flex items-center justify-center text-2xl hover:bg-green-500/30 transition-colors"
-                >
-                  💚
-                </button>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-gray-400 text-sm">Email</p>
+                          <p className="text-white">
+                            {match.matcher?.email || "Hidden"}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-400 text-sm">Matched on</p>
+                          <p className="text-white">
+                            {formatDate(match.createdAt)}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-gray-400 text-sm">Match ID</p>
+                          <p className="text-white font-mono text-sm">
+                            {match.matchId.slice(0, 8)}...
+                          </p>
+                        </div>
+
+                        {!match.respondedByOwner && (
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 mt-4">
+                            Contact Matcher
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            </div>
-          ) : (
-            <div className="text-center">
-              <h2 className="text-2xl mb-4">No more products!</h2>
-              <p className="text-gray-400 mb-8">
-                You've seen all available products.
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
-
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }
