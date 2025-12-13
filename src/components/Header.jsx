@@ -134,10 +134,6 @@ export default function Header() {
                   }}
                   className="relative p-2 rounded-full hover:bg-gray-500 transition"
                 >
-                  <Bell size={24} className="text-white" />
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-                    3
-                  </span>
                 </button>
                 {notificationTab && (
                   <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-600 rounded-lg shadow-lg z-10">
