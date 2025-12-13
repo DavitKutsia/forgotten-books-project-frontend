@@ -200,14 +200,6 @@ export default function UserProducts() {
                       className="w-full resize-none bg-[#333333] p-2 rounded text-white"
                     />
 
-                    <Input
-                      type="number"
-                      name="price"
-                      value={editData.price}
-                      onChange={handleChange}
-                      className="bg-[#333333] text-white mt-2"
-                    />
-
                     <div className="flex gap-2 mt-2">
                       <Button onClick={() => handleUpdate(product._id)}>
                         Save
