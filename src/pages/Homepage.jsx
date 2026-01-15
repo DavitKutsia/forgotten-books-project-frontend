@@ -1,6 +1,6 @@
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import ReviewCard from "../components/ReviewCard";
-import React, { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -13,7 +13,8 @@ import { useNavigate } from "react-router-dom";
 export default function Homepage() {
   const navigate = useNavigate();
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ export default function Homepage() {
         }
       } catch (err) {
         setError("Something went wrong. Try again.");
-        console.log(err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -65,7 +66,7 @@ export default function Homepage() {
         <div className="flex flex-wrap gap-6 justify-center">
           <button
             onClick={() => navigate("/createproduct")}
-            className="px-8 py-4 bg-[#4169E1] text-white rounded-2xl hover:bg-[#4169E1] hover:scale-105 transition-all shadow-md"
+            className="px-8 py-4 bg-[#4169E1] text-white rounded-2xl hover:scale-105 transition-all shadow-md"
           >
             Start Creating
           </button>
@@ -79,17 +80,12 @@ export default function Homepage() {
         </div>
       </section>
 
-      <div className="bg-[#121212]  min-h-[20dvh]">
-
-      </div>
-
-      {/* Footer */}
       <footer className="bg-gray-800 py-12 flex flex-col items-center gap-6">
         <h3 className="text-2xl font-semibold">Join the Story</h3>
 
         <button
           onClick={() => navigate("/SignUp")}
-          className="px-8 py-3 bg-[#4169E1] text-white rounded-xl hover:bg-[#4169E1] hover:scale-105 transition-all shadow-md"
+          className="px-8 py-3 bg-[#4169E1] text-white rounded-xl hover:scale-105 transition-all shadow-md"
         >
           Get Started Free
         </button>

@@ -215,10 +215,6 @@ export default function UserProducts() {
                       {product.content || "No description available."}
                     </CardDescription>
 
-                    <p className="mt-2 text-yellow-400 font-semibold">
-                      Price: ${product.price}
-                    </p>
-
                     <div className="flex gap-2 mt-4">
                       <Button onClick={() => handleEditClick(product)}>
                         Edit

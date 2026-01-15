@@ -11,6 +11,7 @@
   import ProductMatches from "./pages/ProductMatches";
   import SubscriptionSuccess from "./pages/SubscriptionSuccess";
   import SubscriptionCanceled from "./pages/SubscriptionCanceled";
+import ChatPage from "./pages/ChatPage";
 
   function App() {
     return (
@@ -26,8 +27,8 @@
           <Route path="/profile" element={<Profile />} />
           <Route path="/productmatches/:id" element={<ProductMatches />} />
           <Route path="/subscription-success" element={<SubscriptionSuccess />} />
-          <Route path="/subscription-canceled" element={<SubscriptionCanceled />}
-          />
+          <Route path="/subscription-canceled" element={<SubscriptionCanceled />} />
+          <Route path="/chat/:conversationId" element={<ChatPage />} />
         </Routes>
       </div>
     );
