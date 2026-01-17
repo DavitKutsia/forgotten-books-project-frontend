@@ -208,7 +208,8 @@ export function LoginForm({ className, ...props }) {
                   <div className="mt-4 space-y-2">
                     <div className="text-center text-sm" style={{ color: "rgba(255, 255, 255, 0.60)" }}>
                       Continue with Google:
-                    </div>       
+                    </div>   
+                  </div>  
 
                   <FieldDescription
                     style={{ color: "rgba(255,255,255,0.60)" }}
