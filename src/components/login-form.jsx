@@ -208,37 +208,7 @@ export function LoginForm({ className, ...props }) {
                   <div className="mt-4 space-y-2">
                     <div className="text-center text-sm" style={{ color: "rgba(255, 255, 255, 0.60)" }}>
                       Continue with Google:
-                    </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleGoogleLogin("user")}
-                      style={{
-                        color: "#121212",
-                        backgroundColor: "rgba(66, 133, 244, 0.8)",
-                        cursor: "pointer",
-                        width: "100%",
-                      }}
-                    >
-                      🙋‍♀️ Login as User
-                    </Button>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleGoogleLogin("admin")}
-                      style={{
-                        color: "white",
-                        backgroundColor: "rgba(220, 53, 69, 0.8)",
-                        cursor: "pointer",
-                        width: "100%",
-                        border: "1px solid rgba(220, 53, 69, 0.8)",
-                      }}
-                    >
-                      👩‍💼 Login as Admin
-                    </Button>
-                  </div>
+                    </div>       
 
                   <FieldDescription
                     style={{ color: "rgba(255,255,255,0.60)" }}
