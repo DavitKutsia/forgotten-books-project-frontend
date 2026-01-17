@@ -64,7 +64,7 @@ export default function Header() {
           onClick={() => navigate("/")}
           className="cursor-pointer text-2xl sm:text-4xl shps text-white"
         >
-          Abandoned Stories
+          ReLynk
         </h1>
 
         <section className="hidden md:flex gap-8 text-sm items-center">
