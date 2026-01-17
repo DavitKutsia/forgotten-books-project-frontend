@@ -205,12 +205,6 @@ export function LoginForm({ className, ...props }) {
                     Sign up instead
                   </Button>
 
-                  <div className="mt-4 space-y-2">
-                    <div className="text-center text-sm" style={{ color: "rgba(255, 255, 255, 0.60)" }}>
-                      Continue with Google:
-                    </div>   
-                  </div>  
-
                   <FieldDescription
                     style={{ color: "rgba(255,255,255,0.60)" }}
                     className="text-center mt-4"
